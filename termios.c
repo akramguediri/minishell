@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/12 13:08:36 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/14 18:32:45 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ char	*read_command(t_data *data)
 	read_bytes = getline(&input, &input_size, stdin);
 	if (!read_bytes)
 	{
+		signal(SIGINT, handle_interrupt);
 		perror("getline");
 		exit(EXIT_FAILURE);
 	}
@@ -113,6 +114,11 @@ char	*read_command(t_data *data)
 
 //     return (input);
 // }
+void	eof_handler(int errnum)
+{
+	printf("Ctrl+D (EOF) pressed. Exiting...\n");
+	exit(errnum);
+}
 
 void	custom_clear(void)
 {
@@ -236,47 +242,6 @@ void	execute_command(char *command)
 	}
 }
 
-// void	termios(t_data *data)
-// {
-// 	struct termios	saved_attributes;
-// 	t_cmd_hist		*h;
-// 	t_cmd_hist		*command = NULL;
-// 	int i=0;
-// 	signal(SIGINT, handle_interrupt);
-// 	init_termios(&saved_attributes);
-// 	h = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
-// 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
-// 	while (1)
-// 	{
-// 		// printf("Welcome to my minishell!\n");
-// 		command->history = read_command(data);
-// 		if (command)
-// 		{
-// 			command->history_index = ++i;
-// 			command->history_size = ft_strlen(command->history);
-// 		}
-// 		printf("%d\n", command->history_size);
-//     	command->next = h;
-//     	h = command;
-// 		//ft_lstaddh(&h, command);
-// 		// add_to_history(h, command);
-// 		if (ft_memcmp(command->history, "exit", 4) == 0)
-// 		{
-// 			free(command);
-// 			break ;
-// 		}
-// 		else if (strcmp(command->history, "clear") == 0)
-// 			custom_clear();
-// 		else if (ft_strncmp(command->history, "env", 3) == 0)
-// 			printenvList(data->env);
-// 		if (ft_strlen(command->history) != 0)
-// 			execute_command(command->history);
-// //		free(command);
-// 	}
-// 	restore_termios(&saved_attributes);
-// 	printhstList(h);
-// 	return ;
-// }
 char	*ft_trim(char *s)
 {
 	int	i;
@@ -302,6 +267,37 @@ char	*ft_trim(char *s)
 	}
 	return (str);
 }
+char	*getprpath(char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	while (s[i] != '/')
+		i--;
+	return (ft_substr(s, 0, i));
+}
+void	cd(char *str)
+{
+	size_t	i;
+	char	*s;
+	char	**t;
+
+	t = ft_split(str, ' ');
+	i = pathconf(".", _PC_PATH_MAX);
+	s = (char *)malloc((size_t)i);
+	if (!s)
+		return ;
+	s = getcwd(s, i);
+	if (strnstr(t[1], "..", 2) != 0)
+		s = getprpath(s);
+	if (ft_strtrim(t[1], ".."))
+	{
+		s = ft_strjoin(s, "/");
+		chdir(ft_strjoin(s, ft_strtrim(t[1], "..")));
+	}
+}
 void	exec(char *s, t_data *data, t_cmd_hist *h)
 {
 	char	**t;
@@ -320,6 +316,8 @@ void	exec(char *s, t_data *data, t_cmd_hist *h)
 				printhstList(h);
 			else if (ft_strncmp(ft_trim(t[i]), "pwd", 3) == 0)
 				ft_getactivepath(data);
+			else if (ft_strnstr(t[i], "cd ", 3) != 0)
+				cd(t[i]);
 			else
 				execute_command(ft_trim(t[i]));
 			i++;
@@ -340,20 +338,28 @@ void	termios(t_data *data)
 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
 	if (!command)
 		return ;
-	signal(SIGINT, handle_interrupt);
+	if (signal(SIGQUIT, eof_handler) == SIG_ERR)
+	{
+		perror("Failed to register SIGQUIT handler");
+		return ;
+	}
 	init_termios(&saved_attributes);
 	while (1)
 	{
+		signal(SIGINT, handle_interrupt);
 		command->history = read_command(data);
 		if (!command->history)
 		{
 			free(command);
 			break ;
 		}
-		command->history_index = ++i;
-		command->history_size = ft_strlen(command->history);
-		command->next = h;
-		h = command;
+		if (ft_strlen(command->history))
+		{
+			command->history_index = ++i;
+			command->history_size = ft_strlen(command->history);
+			command->next = h;
+			h = command;
+		}
 		if (ft_strnstr(command->history, "exit", 4) != 0)
 			break ;
 		exec(command->history, data, h);

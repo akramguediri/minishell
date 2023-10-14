@@ -35,6 +35,3 @@ re: fclean all
 
 # Phony targets
 .PHONY: all fclean clean
-
-# Include sub-Makefiles
-#include libft/Makefile
