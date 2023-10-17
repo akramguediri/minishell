@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/17 15:18:01 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/10/17 19:10:43 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,13 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 		}
 		if (children[i] == 0)
 		{
-			// Child process
 			if (i > 0)
 			{
-				// Redirect input from the previous pipe
 				dup2(pipe_fd[i - 1][0], STDIN_FILENO);
 				close(pipe_fd[i - 1][0]);
 			}
 			else if (input_file)
 			{
-				// Redirect input from a file (if provided)
 				input_fd = open(input_file, O_RDONLY);
 				if (input_fd < 0)
 				{
@@ -63,13 +60,11 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 			}
 			if (i < num_cmds - 1)
 			{
-				// Redirect output to the current pipe
 				dup2(pipe_fd[i][1], STDOUT_FILENO);
 				close(pipe_fd[i][1]);
 			}
 			else if (output_file)
 			{
-				// Redirect output to a file (if provided)
 				output_fd = open(output_file, O_WRONLY | O_CREAT, 0644);
 				if (output_fd < 0)
 				{
@@ -79,10 +74,12 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 				dup2(output_fd, STDOUT_FILENO);
 				close(output_fd);
 			}
-			for (int j = 0; j < num_cmds - 1; j++)
+			int j = 0;
+			while (j < num_cmds - 1)
 			{
 				close(pipe_fd[j][0]);
 				close(pipe_fd[j][1]);
+				j++;
 			}
 			execvp(cmds[i][0], cmds[i]);
 			perror("Execvp failed");
