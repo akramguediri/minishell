@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/17 19:10:43 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/10/17 19:13:15 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 	int		input_fd;
 	int		output_fd;
 	int		i;
+	int		j;
 
 	i = 0;
 	while (i < num_cmds - 1)
@@ -74,7 +75,7 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 				dup2(output_fd, STDOUT_FILENO);
 				close(output_fd);
 			}
-			int j = 0;
+			j = 0;
 			while (j < num_cmds - 1)
 			{
 				close(pipe_fd[j][0]);
