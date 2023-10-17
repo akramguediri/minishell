@@ -49,11 +49,11 @@ Minishell serves as a platform for students to deepen their understanding of she
 |                     | X Gets all possible paths of a command            |
 |                     | X Trims the "PATH=" string from a path            |
 |                     | X Appends the command name to the path            |
-| **builtins**        | - Handles the cd command                          |
+| **builtins**        | X Handles the cd command                          |
 |                     | - Handles the echo command                        |
 |                     | X Handles the exit command                        |
 |                     | - Handles the export command                      |
-|                     | - Handles the pwd command                         |
+|                     | X Handles the pwd command                         |
 |                     | X Handles the env command                         |
 |                     | - Handles the unset command                       |
 |                     | - Handles all builtin commands                    |

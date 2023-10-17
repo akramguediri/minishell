@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/16 20:33:08 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/17 14:51:48 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,30 +330,69 @@ void	setup_signals(void)
 	signal(SIGTERM, SIG_IGN);
 	signal(SIGINT, reset_handler);
 }
+// void	exec(char *s, t_data *data, t_cmd_hist *h)
+// {
+// 	char	**t;
+// 	int		i;
+
+// 	{
+// 		t = ft_split(s, '&');
+// 		i = 0;
+// 		while (t[i])
+// 		{
+// 			if (strcmp((ft_trim(t[i])), "clear") == 0)
+// 				custom_clear();
+// 			else if (ft_strncmp(ft_trim(t[i]), "env", 3) == 0)
+// 				printenvList(data->env);
+// 			else if (ft_strncmp(ft_trim(t[i]), "history", 7) == 0)
+// 				printhstList(h);
+// 			else if (ft_strncmp(ft_trim(t[i]), "pwd", 3) == 0)
+// 				ft_getactivepath(data);
+// 			else if (ft_strnstr(t[i], "cd", 2) != 0)
+// 				cd(t[i]);
+// 			else if (!ft_strnstr(t[i],"|",1))
+// 				piping();
+// 			else
+// 				execute_command(ft_trim(t[i]));
+// 			i++;
+// 		}
+// 	}
+// }
+
+void	piping()
+{
+	
+}
+
+void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
+{
+	if (strcmp(ft_trim(cmd), "clear") == 0)
+		custom_clear();
+	else if (ft_strncmp(ft_trim(cmd), "env", 3) == 0)
+		printenvList(data->env);
+	else if (ft_strncmp(ft_trim(cmd), "history", 7) == 0)
+		printhstList(h);
+	else if (ft_strncmp(ft_trim(cmd), "pwd", 3) == 0)
+		ft_getactivepath(data);
+	else if (ft_strnstr(cmd, "cd", 2) != 0)
+		cd(cmd);
+	else if (!ft_strnstr(cmd, "|", 1))
+		piping();
+	else
+		execute_command(ft_trim(cmd));
+}
+
 void	exec(char *s, t_data *data, t_cmd_hist *h)
 {
 	char	**t;
 	int		i;
 
+	t = ft_split(s, '&');
+	i = 0;
+	while (t[i])
 	{
-		t = ft_split(s, '&');
-		i = 0;
-		while (t[i])
-		{
-			if (strcmp((ft_trim(t[i])), "clear") == 0)
-				custom_clear();
-			else if (ft_strncmp(ft_trim(t[i]), "env", 3) == 0)
-				printenvList(data->env);
-			else if (ft_strncmp(ft_trim(t[i]), "history", 7) == 0)
-				printhstList(h);
-			else if (ft_strncmp(ft_trim(t[i]), "pwd", 3) == 0)
-				ft_getactivepath(data);
-			else if (ft_strnstr(t[i], "cd", 2) != 0)
-				cd(t[i]);
-			else
-				execute_command(ft_trim(t[i]));
-			i++;
-		}
+		run_command(t[i], data, h);
+		i++;
 	}
 }
 
