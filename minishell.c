@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/10 18:55:53 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/16 15:54:57 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ void	ft_getactivepath(t_data *data)
 		data->path = ft_strdup(s);
 	printf("%s %%", s);
 }
+
 
 int	main(int argc, char **argv, char **env)
 {

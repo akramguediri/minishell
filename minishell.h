@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/08 17:22:18 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/16 16:27:30 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 /*c standard libraries*/
 # include <stdio.h>
 # include <dirent.h>
+# include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
 # include <stdlib.h>

@@ -4,7 +4,7 @@ NAME = minishell
 # Compiler and flags
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -fsanitize=address -g
-
+LINKFLAGS = -lreadline -g -L$(shell brew --prefix readline)/lib
 # Source files
 SRC_DIR = libft
 SRCS = $(wildcard $(SRC_DIR)/*.c)
@@ -18,7 +18,7 @@ all: $(NAME)
 
 # Compile the NAMEutable
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) $(LINKFLAGS) -o $@ $(OBJS)
 
 # Compile individual source files
 %.o: %.c

@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/14 18:32:45 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/16 20:33:08 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,9 @@ char	*read_command(t_data *data)
 	input_size = 0;
 	ft_getactivepath(data);
 	read_bytes = getline(&input, &input_size, stdin);
-	if (!read_bytes)
+	if (read_bytes == 0)
 	{
-		signal(SIGINT, handle_interrupt);
+		signal(SIGQUIT, handle_interrupt);
 		perror("getline");
 		exit(EXIT_FAILURE);
 	}
@@ -283,6 +283,7 @@ void	cd(char *str)
 	size_t	i;
 	char	*s;
 	char	**t;
+	char	**tmp;
 
 	t = ft_split(str, ' ');
 	i = pathconf(".", _PC_PATH_MAX);
@@ -290,13 +291,44 @@ void	cd(char *str)
 	if (!s)
 		return ;
 	s = getcwd(s, i);
-	if (strnstr(t[1], "..", 2) != 0)
-		s = getprpath(s);
-	if (ft_strtrim(t[1], ".."))
+	if (t[1])
 	{
-		s = ft_strjoin(s, "/");
-		chdir(ft_strjoin(s, ft_strtrim(t[1], "..")));
+		if (strnstr(t[1], "..", 2) != 0)
+			s = getprpath(s);
+		if (ft_strtrim(t[1], ".."))
+		{
+			s = ft_strjoin(s, "/");
+			chdir(ft_strjoin(s, ft_strtrim(t[1], "..")));
+		}
 	}
+	else if (!ft_strncmp(str, "cd", 2))
+	{
+		tmp = ft_split(s, '/');
+		if (tmp[0] && tmp[1])
+		{
+			s = ft_strjoin("/", tmp[0]);
+			s = ft_strjoin(s, "/");
+			s = ft_strjoin(s, tmp[1]);
+			s = ft_strjoin(s, "/");
+			chdir(s);
+		}
+	}
+}
+
+void	reset_handler(int signo)
+{
+	(void)signo;
+	write(1, "\n", 1);
+	rl_on_new_line();
+	rl_replace_line("", 0);
+	rl_redisplay();
+}
+
+void	setup_signals(void)
+{
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGTERM, SIG_IGN);
+	signal(SIGINT, reset_handler);
 }
 void	exec(char *s, t_data *data, t_cmd_hist *h)
 {
@@ -316,7 +348,7 @@ void	exec(char *s, t_data *data, t_cmd_hist *h)
 				printhstList(h);
 			else if (ft_strncmp(ft_trim(t[i]), "pwd", 3) == 0)
 				ft_getactivepath(data);
-			else if (ft_strnstr(t[i], "cd ", 3) != 0)
+			else if (ft_strnstr(t[i], "cd", 2) != 0)
 				cd(t[i]);
 			else
 				execute_command(ft_trim(t[i]));
@@ -338,15 +370,10 @@ void	termios(t_data *data)
 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
 	if (!command)
 		return ;
-	if (signal(SIGQUIT, eof_handler) == SIG_ERR)
-	{
-		perror("Failed to register SIGQUIT handler");
-		return ;
-	}
+	setup_signals();
 	init_termios(&saved_attributes);
 	while (1)
 	{
-		signal(SIGINT, handle_interrupt);
 		command->history = read_command(data);
 		if (!command->history)
 		{
@@ -368,7 +395,6 @@ void	termios(t_data *data)
 			break ;
 	}
 	restore_termios(&saved_attributes);
-	printhstList(h);
 	while (h != NULL)
 	{
 		temp = h;
