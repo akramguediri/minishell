@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/16 16:27:30 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/17 19:41:04 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,5 +71,7 @@ void						add_to_history(t_cmd_hist *history,
 								const char *command);
 void						printhstList(t_cmd_hist *envlist);
 void						ft_lstaddh(t_cmd_hist **lst, t_cmd_hist *new);
+void						execute_pipes_with_io_redirection(char *input_file,
+								char *output_file, char **cmds[], int num_cmds);
 
 #endif
