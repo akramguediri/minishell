@@ -16,32 +16,32 @@ Minishell serves as a platform for students to deepen their understanding of she
 |                     | X Initializes termios structures for later use    |
 | **handle_line**     | X Handles user input and history                  |
 |                     | - Handles Ctrl + D                                |
-| **lexer**           | - Checks if a character is part of a token group  |
-|                     | - Handles bunny ears for token creation           |
+| **lexer**           | X Checks if a character is part of a token group  |
+|                     | X Handles bunny ears for token creation           |
 |                     | - Finds token start and end positions             |
-|                     | - Separates tokens in a line of code              |
-| **parser**          | - Locates the next command in tokens              |
+|                     | X Separates tokens in a line of code              |
+| **parser**          | X Locates the next command in tokens              |
 |                     | - Removes bunny ears from tokens                  |
-|                     | - Extracts commands based on index pair           |
-|                     | - Separates token list by pipe symbol             |
-|                     | - Removes space tokens                            |
-| **signals**         | - Resets terminal attributes                      |
-|                     | - Handles printing a new line after a signal      |
+|                     | X Extracts commands based on index pair           |
+|                     | X Separates token list by pipe symbol             |
+|                     | X Removes space tokens                            |
+| **signals**         | X Resets terminal attributes                      |
+|                     | X Handles printing a new line after a signal      |
 | **vars**            | - Handles special index searching for variables   |
 |                     | - Resets temporary storage                        |
 |                     | - Breaks down the line based on indexes           |
 |                     | - Recombines strings found in temp storage        |
 |                     | - Handles variable replacement in commands        |
-| **redirection**     | - Handles input redirection                       |
+| **redirection**     | X Handles input redirection                       |
 |                     | - Handles here document input redirection         |
-|                     | - Handles output redirection                      |
-|                     | - Handles append output redirection               |
-|                     | - Checks if a string is a redirection symbol      |
-|                     | - Checks if a command contains a redirection      |
-|                     | - Gets the type of redirection                    |
+|                     | X Handles output redirection                      |
+|                     | X Handles append output redirection               |
+|                     | X Checks if a string is a redirection symbol      |
+|                     | X Checks if a command contains a redirection      |
+|                     | X Gets the type of redirection                    |
 | **cmds**            | X Runs a single command                           |
 |                     | - Gets the number of commands                     |
-|                     | - Gets the exit code of the last command          |
+|                     | X Gets the exit code of the last command          |
 |                     | X Handles execution of multiple commands          |
 |                     | X Executes commands                               |
 |                     | - Gets possible command paths                     |

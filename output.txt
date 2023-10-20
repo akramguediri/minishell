@@ -1,14 +1,4 @@
-CC = cc
-(CFLAGS) -c $< -o $@
-# Clean up object files and the NAMEutable
-# Compile individual source files
-# Object files
-# Source files
-%.o: %.c
-.PHONY: all fclean clean
-CC = cc
-OBJS = $(SRCS:.c=.o)
-SRCS += minishell.c termios.c history.c
-SRCS = $(wildcard $(SRC_DIR)/*.c)
-fclean:
-re: fclean all
+qwwd
+aljbfv
+ad;fnv
+fiojvdfo

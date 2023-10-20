@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/17 14:51:48 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/10/19 20:22:21 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -359,10 +359,6 @@ void	setup_signals(void)
 // 	}
 // }
 
-void	piping()
-{
-	
-}
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
@@ -376,10 +372,10 @@ void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 		ft_getactivepath(data);
 	else if (ft_strnstr(cmd, "cd", 2) != 0)
 		cd(cmd);
-	else if (!ft_strnstr(cmd, "|", 1))
-		piping();
+	// else if (ft_strnstr(cmd, "|", 1))
+	// 	execute_command(cmd);
 	else
-		execute_command(ft_trim(cmd));
+	 	commandd(cmd);
 }
 
 void	exec(char *s, t_data *data, t_cmd_hist *h)
