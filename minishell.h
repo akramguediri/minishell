@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/19 19:54:28 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:31:42 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@
 # include <sys/wait.h>
 # include <termios.h>
 # include <unistd.h>
+# include <fcntl.h>
 /*other*/
 # include "executer/executer.h"
-# include "get_next_line/get_next_line.h"
 # include "libft/libft.h"
 # include "parser/parser.h"
 
@@ -43,6 +43,16 @@ typedef struct s_data
 	t_env					*env;
 
 }							t_data;
+struct CommandData {
+    char **input_command;
+    char *input_file;
+    char *output_file;
+    char *commandlist;
+    char **t;
+    char *processed;
+    int num_cmds;
+    int r;
+};
 
 // history
 # define MAX_BUFFER_SIZE 1024
@@ -71,8 +81,11 @@ void						add_to_history(t_cmd_hist *history,
 								const char *command);
 void						printhstList(t_cmd_hist *envlist);
 void						ft_lstaddh(t_cmd_hist **lst, t_cmd_hist *new);
-void						execute_pipes_with_io_redirection(char *input_file,
-								char *output_file, char *cmds[], int num_cmds);
+void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
+		char *cmds[], int num_cmds, int r);
 int							commandd(char *input_command2);
-
+int	count_characters(const char *s, char c);
+void	run_command(char *cmd, t_data *data, t_cmd_hist *h);
+void	cd(char *str);
+void	echo(char *s);
 #endif

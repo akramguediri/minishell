@@ -1,4 +1,69 @@
-qwwd
-aljbfv
-ad;fnv
-fiojvdfo
+  985  ./minishell
+  986  make re
+  987  make re
+  988  ./minishell 
+  989  make re
+  990  ./minishell 
+  991  make re
+  992  ./minishell 
+  993  make re
+  994  ./minishell 
+  995  make re
+  996  make re
+  997  history > output.txt
+  998  history | wc -l > output.txt
+  999  history | dort > output.txt
+ 1000  history | sort > output.txt
+  986  make re
+  987  make re
+  988  ./minishell 
+  989  make re
+  990  ./minishell 
+  991  make re
+  992  ./minishell 
+  993  make re
+  994  ./minishell 
+  995  make re
+  996  make re
+  997  history > output.txt
+  998  history | wc -l > output.txt
+  999  history | dort > output.txt
+ 1000  history | sort > output.txt
+ 1001  history | sort > output.txt
+# Main Makefile
+NAME = minishell
+
+# Compiler and flags
+CC = cc
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address -g
+LINKFLAGS = -lreadline -g -L$(shell brew --prefix readline)/lib
+# Source files
+SRC_DIR = libft
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+SRCS += minishell.c termios.c history.c ft_piping.c
+
+# Object files
+OBJS = $(SRCS:.c=.o)
+
+# Default target
+all: $(NAME)
+
+# Compile the NAMEutable
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(LINKFLAGS) -o $@ $(OBJS)
+
+# Compile individual source files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up object files and the NAMEutable
+fclean:
+	rm -f $(OBJS) $(NAME)
+#	rm -f libft/*.o libft/libft.a
+clean:
+	rm -f $(OBJS)
+
+re: fclean all
+
+# Phony targets
+.PHONY: all fclean clean

@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/19 20:22:21 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/29 21:32:31 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,52 +330,104 @@ void	setup_signals(void)
 	signal(SIGTERM, SIG_IGN);
 	signal(SIGINT, reset_handler);
 }
-// void	exec(char *s, t_data *data, t_cmd_hist *h)
-// {
-// 	char	**t;
-// 	int		i;
+void	printecho(char *s)
+{
+	int	i;
 
-// 	{
-// 		t = ft_split(s, '&');
-// 		i = 0;
-// 		while (t[i])
-// 		{
-// 			if (strcmp((ft_trim(t[i])), "clear") == 0)
-// 				custom_clear();
-// 			else if (ft_strncmp(ft_trim(t[i]), "env", 3) == 0)
-// 				printenvList(data->env);
-// 			else if (ft_strncmp(ft_trim(t[i]), "history", 7) == 0)
-// 				printhstList(h);
-// 			else if (ft_strncmp(ft_trim(t[i]), "pwd", 3) == 0)
-// 				ft_getactivepath(data);
-// 			else if (ft_strnstr(t[i], "cd", 2) != 0)
-// 				cd(t[i]);
-// 			else if (!ft_strnstr(t[i],"|",1))
-// 				piping();
-// 			else
-// 				execute_command(ft_trim(t[i]));
-// 			i++;
-// 		}
-// 	}
-// }
+	i = ft_strlen(s);
+	while (s[i] != ' ')
+		i--;
+	while (s[i])
+	{
+		printf("%c", s[i]);
+		i++;
+	}
+}
+void	echo(char *s)
+{
+	int		n;
+	char	output[1024];
+	char	*r;
+	int		red;
+	int		i;
+	int		j;
+	char	c;
 
+	//	char	**t;
+	i = 0;
+	j = ft_strlen(s);
+	n = 0;
+	red = 0;
+	r = NULL;
+	if (ft_strchr(s, '\"') == 0 || ft_strchr(s, '\'') == 0)
+	{
+		while (s[i] != '\'' && s[i] != '\"')
+			i++;
+		c = s[i];
+		while (s[j] != c)
+			j--;
+		if (i != j)
+		{
+			r = (char *)malloc(j - i + 1);
+			if (s[ft_strlen(s)] != c)
+				ft_strlcpy(r, s + i + 1, j - i);
+			else
+				ft_strlcpy(r, s + i + 1, j - i - 1);
+		}
+		if (count_characters(s, c) % 2 != 0 && s[ft_strlen(s)] != c)
+		{
+			printf("%d\n\n\n", count_characters(s, c));
+			while (count_characters(r, c) % 2 != 0)
+			{
+				n = read(0, output, sizeof(output));
+				r = ft_strjoin(r, output);
+			}
+		}
+		printf("%s", r);
+	}
+	else
+		printecho(s);
+	if (strnstr(s, "-n", 2) != 0)
+		printf("\n");
+}
+void	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+{
+	char	*trimmed_cmd;
+
+	trimmed_cmd = ft_trim(cmd);
+	if (strcmp(trimmed_cmd, "clear") == 0)
+	{
+		custom_clear();
+	}
+	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+	{
+		printenvList(data->env);
+	}
+	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
+	{
+		printhstList(h);
+	}
+	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
+	{
+		ft_getactivepath(data);
+	}
+	else if (ft_strnstr(trimmed_cmd, "cd", 2) != 0)
+	{
+		cd(cmd);
+	}
+	else if (ft_strnstr(trimmed_cmd, "echo ", 5) != 0)
+	{
+		echo(cmd);
+	}
+	// Add more conditionals as needed.
+	printf("\n");
+}
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
-	if (strcmp(ft_trim(cmd), "clear") == 0)
-		custom_clear();
-	else if (ft_strncmp(ft_trim(cmd), "env", 3) == 0)
-		printenvList(data->env);
-	else if (ft_strncmp(ft_trim(cmd), "history", 7) == 0)
-		printhstList(h);
-	else if (ft_strncmp(ft_trim(cmd), "pwd", 3) == 0)
-		ft_getactivepath(data);
-	else if (ft_strnstr(cmd, "cd", 2) != 0)
-		cd(cmd);
-	// else if (ft_strnstr(cmd, "|", 1))
-	// 	execute_command(cmd);
-	else
-	 	commandd(cmd);
+	handle_command(cmd, data, h);
+	commandd(cmd);
+	printf("\n");
 }
 
 void	exec(char *s, t_data *data, t_cmd_hist *h)

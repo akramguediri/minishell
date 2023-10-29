@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 22:54:39 by aguediri          #+#    #+#             */
-/*   Updated: 2023/04/01 03:41:18 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/29 20:56:02 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,21 +24,27 @@ static int	ft_strlen(char const *str)
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
+	int		len1;
+	int		len2;
+	char	*r;
 	int		i;
 	int		j;
-	char	*r;
 
-	r = malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
-	i = 0;
-	j = 0;
-	if (r == NULL || !s1 || !s2)
+	if (!s1 || !s2)
 		return (NULL);
-	while (i < ft_strlen(s1))
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	r = malloc(len1 + len2 + 1);
+	if (r == NULL)
+		return (NULL);
+	i = 0;
+	while (i < len1)
 	{
 		r[i] = s1[i];
 		i++;
 	}
-	while (j < ft_strlen(s2))
+	j = 0;
+	while (j < len2)
 	{
 		r[i] = s2[j];
 		i++;

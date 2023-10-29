@@ -40,12 +40,12 @@ Minishell serves as a platform for students to deepen their understanding of she
 |                     | X Checks if a command contains a redirection      |
 |                     | X Gets the type of redirection                    |
 | **cmds**            | X Runs a single command                           |
-|                     | - Gets the number of commands                     |
+|                     | X Gets the number of commands                     |
 |                     | X Gets the exit code of the last command          |
 |                     | X Handles execution of multiple commands          |
 |                     | X Executes commands                               |
-|                     | - Gets possible command paths                     |
-|                     | - Checks if a string is in executable format      |
+|                     | X Gets possible command paths                     |
+|                     | X Checks if a string is in executable format      |
 |                     | X Gets all possible paths of a command            |
 |                     | X Trims the "PATH=" string from a path            |
 |                     | X Appends the command name to the path            |
