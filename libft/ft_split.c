@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 22:54:49 by aguediri          #+#    #+#             */
-/*   Updated: 2023/04/13 01:03:31 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/30 15:50:02 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ static int	ft_wordcount(char const *s, char c)
 
 	count = 0;
 	i = 0;
+	if (!s)
+		return (0);
 	while (s[i])
 	{
 		if (s[i] != c)

@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/29 21:46:59 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/30 16:23:46 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,19 +186,20 @@ void	redirect_output(int i, int num_cmds, char *output_file, int r,
 	}
 }
 
-void	execute_command2(char *cmd)
+void	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 {
 	char	*token;
 	char	*args[64];
 	int		arg_count;
 
 	arg_count = 0;
-	if (strcmp(cmd, "clear") == 0)
-		custom_clear();
-	else if (ft_strnstr(cmd, "cd", 2) != 0)
-		cd(cmd);
-	else if (ft_strnstr(cmd, "echo ", 5) != 0)
-		echo(cmd);
+	// if (strcmp(cmd, "clear") == 0)
+	// 	custom_clear();
+	// else if (ft_strnstr(cmd, "cd", 2) != 0)
+	// 	cd(cmd);
+	// else if (ft_strnstr(cmd, "echo ", 5) != 0)
+	// 	echo(cmd);
+	handle_command(cmd, data, h);
 	token = strtok(cmd, " ");
 	while (token != NULL)
 	{
@@ -223,18 +224,17 @@ void	wait_for_children(int num_cmds, pid_t children[])
 	}
 }
 
-void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
-		char *cmds[], int num_cmds, int r)
+void	execute_pipes_with_io_redirection(struct CommandData	cmddata, t_data *data, t_cmd_hist *h)
 {
-	int		pipe_fd[num_cmds - 1][2];
-	pid_t	children[num_cmds];
+	int		pipe_fd[cmddata.num_cmds - 1][2];
+	pid_t	children[cmddata.num_cmds];
 	int		i;
 	int		j;
 	int		k;
 
-	create_pipes(num_cmds - 1, pipe_fd);
+	create_pipes(cmddata.num_cmds - 1, pipe_fd);
 	i = 0;
-	while (i < num_cmds)
+	while (i < cmddata.num_cmds)
 	{
 		children[i] = fork();
 		if (children[i] < 0)
@@ -244,27 +244,27 @@ void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
 		}
 		if (children[i] == 0)
 		{
-			redirect_input(i, input_file, pipe_fd);
-			redirect_output(i, num_cmds, output_file, r, pipe_fd);
+			redirect_input(i, cmddata.input_file, pipe_fd);
+			redirect_output(i, cmddata.num_cmds, cmddata.output_file, cmddata.r, pipe_fd);
 			j = 0;
-			while (j < num_cmds - 1)
+			while (j < cmddata.num_cmds - 1)
 			{
 				close(pipe_fd[j][0]);
 				close(pipe_fd[j][1]);
 				j++;
 			}
-			execute_command2(cmds[i]);
+			execute_command2(cmddata.t[i], data, h);
 		}
 		i++;
 	}
 	k = 0;
-	while (k < num_cmds - 1)
+	while (k < cmddata.num_cmds - 1)
 	{
 		close(pipe_fd[k][0]);
 		close(pipe_fd[k][1]);
 		k++;
 	}
-	wait_for_children(num_cmds, children);
+	wait_for_children(cmddata.num_cmds, children);
 }
 
 // void execute_pipes_with_io_redirection(char *input_file, char *output_file,
@@ -507,15 +507,14 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 	}
 }
 
-int	commandd(char *input_command2)
+int	commandd(char *input_command2, t_data *data, t_cmd_hist *h)
 {
-	struct CommandData cmddata;
+	struct CommandData	cmddata;
 
 	process_command_data(&cmddata, input_command2);
-	char **t = ft_split(cmddata.commandlist, '|');
-	int num_cmds = count_characters(cmddata.commandlist, '|') + 1;
-	execute_pipes_with_io_redirection(cmddata.input_file, cmddata.output_file,
-		t, num_cmds, cmddata.r);
+	cmddata.t = ft_split(cmddata.commandlist, '|');
+	cmddata.num_cmds = count_characters(cmddata.commandlist, '|') + 1;
+	execute_pipes_with_io_redirection(cmddata, data, h);
 	free(cmddata.commandlist);
 	free(cmddata.input_file);
 	free(cmddata.output_file);

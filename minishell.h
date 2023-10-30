@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/29 21:31:42 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/30 16:25:17 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,11 +81,11 @@ void						add_to_history(t_cmd_hist *history,
 								const char *command);
 void						printhstList(t_cmd_hist *envlist);
 void						ft_lstaddh(t_cmd_hist **lst, t_cmd_hist *new);
-void	execute_pipes_with_io_redirection(char *input_file, char *output_file,
-		char *cmds[], int num_cmds, int r);
-int							commandd(char *input_command2);
+void	execute_pipes_with_io_redirection(struct CommandData	cmddata, t_data *data, t_cmd_hist *h);
+int	commandd(char *input_command2, t_data *data, t_cmd_hist *h);
 int	count_characters(const char *s, char c);
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h);
 void	cd(char *str);
 void	echo(char *s);
+void	handle_command(char *cmd, t_data *data, t_cmd_hist *h);
 #endif

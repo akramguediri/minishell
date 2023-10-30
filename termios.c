@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/29 21:32:31 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/30 16:19:27 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -395,7 +395,9 @@ void	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 	char	*trimmed_cmd;
 
 	trimmed_cmd = ft_trim(cmd);
-	if (strcmp(trimmed_cmd, "clear") == 0)
+	if (!ft_split(*ft_split(cmd,'\t'), ' ') || !ft_split(cmd, ' ') || !ft_split(cmd, '\t'))
+		;
+	else if (strcmp(trimmed_cmd, "clear") == 0)
 	{
 		custom_clear();
 	}
@@ -419,14 +421,13 @@ void	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 	{
 		echo(cmd);
 	}
-	// Add more conditionals as needed.
 	printf("\n");
 }
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
-	handle_command(cmd, data, h);
-	commandd(cmd);
+//	handle_command(cmd, data, h);
+	commandd(cmd, data, h);
 	printf("\n");
 }
 
