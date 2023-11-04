@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/16 15:54:57 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:53:57 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,9 +116,29 @@ void	ft_getactivepath(t_data *data)
 	if (!s)
 		return ;
 	s = getcwd(s, i);
+	
 	if (s)
 		data->path = ft_strdup(s);
 	printf("%s %%", s);
+}
+void	ft_get(t_data *data)
+{
+	size_t	i;
+	char	*s;
+	char	**t;
+
+	i = pathconf(".", _PC_PATH_MAX);
+	s = (char *)malloc((size_t)i);
+	data = (t_data *)malloc(sizeof(t_data));
+	if (!s)
+		return ;
+	s = getcwd(s, i);
+	t = ft_split(s, '/');
+	i = 0;
+	while (t[i])
+		i++;
+	data->path = ft_strdup(t[i--]);
+	printf("%s %% >>", t[i]);
 }
 
 

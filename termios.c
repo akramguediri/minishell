@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/30 16:19:27 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/02 17:48:11 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -379,7 +379,7 @@ void	echo(char *s)
 			printf("%d\n\n\n", count_characters(s, c));
 			while (count_characters(r, c) % 2 != 0)
 			{
-				n = read(0, output, sizeof(output));
+				n = read(1, output, sizeof(output));
 				r = ft_strjoin(r, output);
 			}
 		}
@@ -390,45 +390,86 @@ void	echo(char *s)
 	if (strnstr(s, "-n", 2) != 0)
 		printf("\n");
 }
-void	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+void addtoenv(const char *env, t_env **data) {
+    t_env *new_env = (t_env *)malloc(sizeof(t_env));
+    if (new_env == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+    new_env->l = strdup(env);
+    new_env->next = NULL;
+
+    if (*data == NULL) {
+        *data = new_env;
+    } else {
+        t_env *temp = *data;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = new_env;
+    }
+}
+void export(t_env *env, char *s)
+{
+	char *var = malloc(ft_strlen(s) - 6 + 1);
+	ft_strlcpy(var, s + 6, ft_strlen(s) - 6);
+	addtoenv(var, &env);
+}
+int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
 	char	*trimmed_cmd;
+	int		i = 0;
 
 	trimmed_cmd = ft_trim(cmd);
-	if (!ft_split(*ft_split(cmd,'\t'), ' ') || !ft_split(cmd, ' ') || !ft_split(cmd, '\t'))
-		;
+	if (!ft_split(*ft_split(cmd, '\t'), ' ') || !ft_split(cmd, ' ')
+		|| !ft_split(cmd, '\t'))
+		i = 1;
 	else if (strcmp(trimmed_cmd, "clear") == 0)
 	{
 		custom_clear();
+		i = 1;
 	}
 	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
 	{
 		printenvList(data->env);
+		printf("\n");
+		i = 1;
 	}
 	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
 	{
 		printhstList(h);
+		i = 1;
 	}
 	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
 	{
 		ft_getactivepath(data);
+		i = 1;
 	}
-	else if (ft_strnstr(trimmed_cmd, "cd", 2) != 0)
+	else if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
 	{
-		cd(cmd);
+		if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
+			printenvList(data->env);
+		else
+			export(data->env, trimmed_cmd);
+		i = 1;
 	}
 	else if (ft_strnstr(trimmed_cmd, "echo ", 5) != 0)
 	{
 		echo(cmd);
+		i = 1;
 	}
-	printf("\n");
+	return (i);
 }
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
-//	handle_command(cmd, data, h);
-	commandd(cmd, data, h);
-	printf("\n");
+	//	handle_command(cmd, data, h);
+	if (ft_strnstr(cmd, "cd", 2) != 0)
+	{
+		cd(cmd);
+	}
+	else
+		commandd(cmd, data, h);
 }
 
 void	exec(char *s, t_data *data, t_cmd_hist *h)

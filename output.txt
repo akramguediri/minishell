@@ -1,7 +1,31 @@
-1 ls
-2 echo "qwwd"
-3 ls
-4 echo "qwwd" > output.txt
-5 history
-6 history > output.txt
-
+USER=aguediri
+MallocNanoZone=0
+PATH=/Users/aguediri/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Library/Apple/usr/bin:/Users/aguediri/.brew/bin
+LOGNAME=aguediri
+SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.Tgrt5N3heE/Listeners
+HOME=/Users/aguediri
+SHELL=/bin/zsh
+__CF_USER_TEXT_ENCODING=0x18ADE:0x0:0x0
+TMPDIR=/var/folders/zz/zyxvpxvq6csfxvn_n000c_vr0032py/T/
+XPC_SERVICE_NAME=0
+XPC_FLAGS=0x0
+ORIGINAL_XDG_CURRENT_DESKTOP=undefined
+SHLVL=1
+PWD=/Users/aguediri/Desktop/Minishell
+OLDPWD=/Users/aguediri/Desktop/Minishell
+HOMEBREW_CACHE=/tmp/aguediri/Homebrew/Caches
+HOMEBREW_TEMP=/tmp/aguediri/Homebrew/Temp
+TERM_PROGRAM=vscode
+TERM_PROGRAM_VERSION=1.83.0
+LANG=en_US.UTF-8
+COLORTERM=truecolor
+GIT_ASKPASS=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass.sh
+VSCODE_GIT_ASKPASS_NODE=/Applications/Visual Studio Code.app/Contents/Frameworks/Code Helper (Plugin).app/Contents/MacOS/Code Helper (Plugin)
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=--ms-enable-electron-run-as-node
+VSCODE_GIT_ASKPASS_MAIN=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
+VSCODE_GIT_IPC_HANDLE=/var/folders/zz/zyxvpxvq6csfxvn_n000c_vr0032py/T/vscode-git-4f0c44090b.sock
+VSCODE_INJECTION=1
+ZDOTDIR=/Users/aguediri
+USER_ZDOTDIR=/Users/aguediri
+TERM=xterm-256color
+_=/Users/aguediri/Desktop/Minishell/./minishell

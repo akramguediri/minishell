@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/30 16:25:17 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:48:12 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,5 +87,7 @@ int	count_characters(const char *s, char c);
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h);
 void	cd(char *str);
 void	echo(char *s);
-void	handle_command(char *cmd, t_data *data, t_cmd_hist *h);
+int	handle_command(char *cmd, t_data *data, t_cmd_hist *h);
+void	ft_init(char **env, t_data **data);
+void	ft_get(t_data *data);
 #endif
