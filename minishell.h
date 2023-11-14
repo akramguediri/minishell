@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/31 18:48:12 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/04 18:41:34 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,8 @@ void	echo(char *s);
 int	handle_command(char *cmd, t_data *data, t_cmd_hist *h);
 void	ft_init(char **env, t_data **data);
 void	ft_get(t_data *data);
+char	*heredoc(const char *delimiter);
+char	**ft_splitonsteroids(char *s, char c);
+void	free_split(char **words);
+
 #endif

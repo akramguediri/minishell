@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/02 17:48:11 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/04 18:50:07 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,50 +345,65 @@ void	printecho(char *s)
 }
 void	echo(char *s)
 {
-	int		n;
-	char	output[1024];
-	char	*r;
-	int		red;
-	int		i;
-	int		j;
-	char	c;
+	// int		n;
+	// char	output[1024];
+	// char	*r;
+	// int		red;
+	// int		i;
+	// int		j;
+	// char	c;
 
-	//	char	**t;
-	i = 0;
-	j = ft_strlen(s);
-	n = 0;
-	red = 0;
-	r = NULL;
-	if (ft_strchr(s, '\"') == 0 || ft_strchr(s, '\'') == 0)
+	char	**t;
+	// i = 0;
+	// j = ft_strlen(s);
+	// n = 0;
+	// red = 0;
+	// r = NULL;
+	// if (ft_strchr(s, '\"') == 0 || ft_strchr(s, '\'') == 0)
+	// {
+	// 	while (s[i] != '\'' && s[i] != '\"')
+	// 		i++;
+	// 	c = s[i];
+	// 	while (s[j] != c)
+	// 		j--;
+	// 	if (i != j)
+	// 	{
+	// 		r = (char *)malloc(j - i + 1);
+	// 		if (s[ft_strlen(s)] != c)
+	// 			ft_strlcpy(r, s + i + 1, j - i);
+	// 		else
+	// 			ft_strlcpy(r, s + i + 1, j - i - 1);
+	// 	}
+	// 	if (count_characters(s, c) % 2 != 0 && s[ft_strlen(s)] != c)
+	// 	{
+	// 		printf("%d\n\n\n", count_characters(s, c));
+	// 		while (count_characters(r, c) % 2 != 0)
+	// 		{
+	// 			n = read(1, output, sizeof(output));
+	// 			r = ft_strjoin(r, output);
+	// 		}
+	// 	}
+	// 	printf("%s", r);
+	// }
+	// else
+	// 	printecho(s);
+	// if (strnstr(s, "-n", 2) != 0)
+	// 	printf("\n");
+	// 	char **t = ft_splitonsteroids(input, c);
+	t = ft_splitonsteroids(s, ' ');
+	if (t)
 	{
-		while (s[i] != '\'' && s[i] != '\"')
-			i++;
-		c = s[i];
-		while (s[j] != c)
-			j--;
-		if (i != j)
+		for (int i = 1; t[i] != NULL; i++)
 		{
-			r = (char *)malloc(j - i + 1);
-			if (s[ft_strlen(s)] != c)
-				ft_strlcpy(r, s + i + 1, j - i);
-			else
-				ft_strlcpy(r, s + i + 1, j - i - 1);
+			printf("Element %d: \"%s\"\n", i, t[i]);
+			free(t[i]);
 		}
-		if (count_characters(s, c) % 2 != 0 && s[ft_strlen(s)] != c)
-		{
-			printf("%d\n\n\n", count_characters(s, c));
-			while (count_characters(r, c) % 2 != 0)
-			{
-				n = read(1, output, sizeof(output));
-				r = ft_strjoin(r, output);
-			}
-		}
-		printf("%s", r);
+		free(t);
 	}
 	else
-		printecho(s);
-	if (strnstr(s, "-n", 2) != 0)
-		printf("\n");
+	{
+		printf("Splitting failed.\n");
+	}
 }
 void addtoenv(const char *env, t_env **data) {
     t_env *new_env = (t_env *)malloc(sizeof(t_env));
@@ -447,7 +462,7 @@ int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 	}
 	else if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
 	{
-		if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
+		if (ft_strncmp(trimmed_cmd, "export", 6) != 0)
 			printenvList(data->env);
 		else
 			export(data->env, trimmed_cmd);
@@ -455,7 +470,7 @@ int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 	}
 	else if (ft_strnstr(trimmed_cmd, "echo ", 5) != 0)
 	{
-		echo(cmd);
+		echo(trimmed_cmd);
 		i = 1;
 	}
 	return (i);
@@ -477,6 +492,10 @@ void	exec(char *s, t_data *data, t_cmd_hist *h)
 	char	**t;
 	int		i;
 
+	// if (ft_strnstr(s, "||", 2))
+	// {
+	// 	return ;
+	// }
 	t = ft_split(s, '&');
 	i = 0;
 	while (t[i])
