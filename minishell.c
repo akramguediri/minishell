@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/10/31 18:53:57 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:57:23 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,10 +147,11 @@ int	main(int argc, char **argv, char **env)
 	t_data	*data;
 
 	if (argc < 1)
-		printf("fbkk");
+		printf("error");
 	if (argv[0])
 		;
 	data = NULL;
+	environ = env;
 	ft_init(env, &data);
 	termios(data);
 }

@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/04 18:50:07 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:38:38 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,67 +53,13 @@ void	restore_termios(struct termios *saved_attributes)
 char	*read_command(t_data *data)
 {
 	char	*input;
-	size_t	input_size;
-	size_t	read_bytes;
 
 	input = NULL;
-	input_size = 0;
 	ft_getactivepath(data);
-	read_bytes = getline(&input, &input_size, stdin);
-	if (read_bytes == 0)
-	{
-		signal(SIGQUIT, handle_interrupt);
-		perror("getline");
-		exit(EXIT_FAILURE);
-	}
-	input[strcspn(input, "\n")] = '\0';
+	input = readline("");
 	return (input);
 }
-// char *read_command(t_data *data)
-// {
-//     char *input = NULL;
-//     size_t input_size = 0;
-//     ssize_t read_bytes;
-//     char c;
 
-//     while (1)
-//     {
-//         read_bytes = read(STDIN_FILENO, &c, 1);
-
-//         if (read_bytes == -1)
-//         {
-//             perror("read");
-//             exit(EXIT_FAILURE);
-//         }
-
-//         if (read_bytes == 0 || c == EOF)
-//         {
-//             printf("\nCtrl+D detected. Exiting...\n");
-//             exit(EXIT_SUCCESS);
-//         }
-
-//         if (c == '\n')
-//         {
-//             if (input != NULL)
-//             {
-//                 input[strcspn(input, "\n")] = '\0';
-//             }
-//             break ;
-//         }
-
-//         // Append character to input
-//         input = realloc(input, input_size + 2);
-//         if (input == NULL)
-//         {
-//             perror("realloc");
-//             exit(EXIT_FAILURE);
-//         }
-//         input[input_size++] = c;
-//         input[input_size] = '\0';
-//     }
-
-//     return (input);
-// }
 void	eof_handler(int errnum)
 {
 	printf("Ctrl+D (EOF) pressed. Exiting...\n");
@@ -171,102 +117,6 @@ char	*find_command_in_path(const char *command_name)
 	return (NULL);
 }
 
-void	execute_command(char *command)
-{
-	int		fd[2];
-	pid_t	child_pid;
-	char	buffer[4096];
-	ssize_t	read_bytes;
-	char	*token;
-	int		arg_count;
-	char	*full_path;
-	char	**args;
-
-	if (pipe(fd) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
-	child_pid = fork();
-	if (child_pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	if (child_pid == 0)
-	{
-		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[1]);
-		token = strtok(command, " ");
-		args = NULL;
-		arg_count = 0;
-		while (token != NULL)
-		{
-			args = realloc(args, sizeof(char *) * (arg_count + 1));
-			if (args == NULL)
-			{
-				perror("realloc");
-				exit(EXIT_FAILURE);
-			}
-			args[arg_count] = token;
-			arg_count++;
-			token = strtok(NULL, " ");
-		}
-		args = realloc(args, sizeof(char *) * (arg_count + 1));
-		if (args == NULL)
-		{
-			perror("realloc");
-			exit(EXIT_FAILURE);
-		}
-		args[arg_count] = NULL;
-		full_path = find_command_in_path(args[0]);
-		if (full_path == NULL)
-		{
-			fprintf(stderr, "Command not found: %s\n", args[0]);
-			exit(EXIT_FAILURE);
-		}
-		execve(full_path, args, NULL);
-		perror("execve");
-		free(args);
-		free(full_path);
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		close(fd[1]);
-		waitpid(child_pid, NULL, 0);
-		while ((read_bytes = read(fd[0], buffer, sizeof(buffer))) > 0)
-			write(STDOUT_FILENO, buffer, read_bytes);
-		close(fd[0]);
-	}
-}
-
-char	*ft_trim(char *s)
-{
-	int	i;
-	int	j;
-	int	length;
-
-	i = 0;
-	j = strlen(s);
-	while (s[i] == ' ')
-	{
-		i++;
-	}
-	while (j > i && s[j - 1] == ' ')
-	{
-		j--;
-	}
-	length = j - i;
-	char *str = (char *)malloc(length + 1); // +1 for the null terminator
-	if (str)
-	{
-		strncpy(str, s + i, length);
-		str[length] = '\0'; // Null-terminate the new string
-	}
-	return (str);
-}
 char	*getprpath(char *s)
 {
 	int	i;
@@ -343,142 +193,182 @@ void	printecho(char *s)
 		i++;
 	}
 }
+void	printvar(char *s)
+{
+	int	i;
+	char	**t;
+	i = 0;
+	while (environ[i])
+	{
+		if (ft_strnstr(environ[i], s, ft_strlen(s)))
+		{
+			t = ft_split(environ[i],'=');
+			printf("%s", t[1]);
+			break ;
+		}
+		i++;
+	}
+}
 void	echo(char *s)
 {
-	// int		n;
-	// char	output[1024];
-	// char	*r;
-	// int		red;
-	// int		i;
-	// int		j;
-	// char	c;
-
 	char	**t;
-	// i = 0;
-	// j = ft_strlen(s);
-	// n = 0;
-	// red = 0;
-	// r = NULL;
-	// if (ft_strchr(s, '\"') == 0 || ft_strchr(s, '\'') == 0)
-	// {
-	// 	while (s[i] != '\'' && s[i] != '\"')
-	// 		i++;
-	// 	c = s[i];
-	// 	while (s[j] != c)
-	// 		j--;
-	// 	if (i != j)
-	// 	{
-	// 		r = (char *)malloc(j - i + 1);
-	// 		if (s[ft_strlen(s)] != c)
-	// 			ft_strlcpy(r, s + i + 1, j - i);
-	// 		else
-	// 			ft_strlcpy(r, s + i + 1, j - i - 1);
-	// 	}
-	// 	if (count_characters(s, c) % 2 != 0 && s[ft_strlen(s)] != c)
-	// 	{
-	// 		printf("%d\n\n\n", count_characters(s, c));
-	// 		while (count_characters(r, c) % 2 != 0)
-	// 		{
-	// 			n = read(1, output, sizeof(output));
-	// 			r = ft_strjoin(r, output);
-	// 		}
-	// 	}
-	// 	printf("%s", r);
-	// }
-	// else
-	// 	printecho(s);
-	// if (strnstr(s, "-n", 2) != 0)
-	// 	printf("\n");
-	// 	char **t = ft_splitonsteroids(input, c);
+	char	*e;
+	int		r = 0;
+	int		i = 1;
+	
 	t = ft_splitonsteroids(s, ' ');
+	if (ft_strnstr(t[1], "-n", 3))
+	{
+		r = 1;
+		i = 2;
+	}
 	if (t)
 	{
-		for (int i = 1; t[i] != NULL; i++)
+		while (t[i] != NULL)
 		{
-			printf("Element %d: \"%s\"\n", i, t[i]);
-			free(t[i]);
+			e = ft_strdup(ft_strtrim(ft_strtrim(t[i], "'"), "\""));
+			if (ft_strchr(e, '$'))
+				printvar(ft_strtrim(e,"$"));
+			else
+				printf("%s ", e);
+			i++;
 		}
-		free(t);
 	}
 	else
 	{
 		printf("Splitting failed.\n");
 	}
+	if (r == 1)
+		printf("\n");
 }
-void addtoenv(const char *env, t_env **data) {
-    t_env *new_env = (t_env *)malloc(sizeof(t_env));
-    if (new_env == NULL) {
-        // Handle memory allocation failure
-        return;
-    }
-    new_env->l = strdup(env);
-    new_env->next = NULL;
-
-    if (*data == NULL) {
-        *data = new_env;
-    } else {
-        t_env *temp = *data;
-        while (temp->next != NULL) {
-            temp = temp->next;
-        }
-        temp->next = new_env;
-    }
-}
-void export(t_env *env, char *s)
+void	addtoenv(const char *env, t_env **data)
 {
-	char *var = malloc(ft_strlen(s) - 6 + 1);
+	t_env	*new_env;
+	t_env	*temp;
+
+	new_env = (t_env *)malloc(sizeof(t_env));
+	if (new_env == NULL)
+	{
+		return ;
+	}
+	new_env->l = strdup(env);
+	new_env->next = NULL;
+	if (*data == NULL)
+	{
+		*data = new_env;
+	}
+	else
+	{
+		temp = *data;
+		while (temp->next != NULL)
+		{
+			temp = temp->next;
+		}
+		temp->next = new_env;
+	}
+}
+void	export(t_env *env, char *s)
+{
+	char	*var;
+
+	var = malloc(ft_strlen(s) - 6 + 1);
 	ft_strlcpy(var, s + 6, ft_strlen(s) - 6);
 	addtoenv(var, &env);
 }
-int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
-{
-	char	*trimmed_cmd;
-	int		i = 0;
+// int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+// {
+// 	char	*trimmed_cmd;
+// 	int		i;
 
-	trimmed_cmd = ft_trim(cmd);
-	if (!ft_split(*ft_split(cmd, '\t'), ' ') || !ft_split(cmd, ' ')
-		|| !ft_split(cmd, '\t'))
-		i = 1;
-	else if (strcmp(trimmed_cmd, "clear") == 0)
-	{
-		custom_clear();
-		i = 1;
-	}
-	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
-	{
-		printenvList(data->env);
-		printf("\n");
-		i = 1;
-	}
-	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
-	{
-		printhstList(h);
-		i = 1;
-	}
-	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
-	{
-		ft_getactivepath(data);
-		i = 1;
-	}
-	else if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
-	{
-		if (ft_strncmp(trimmed_cmd, "export", 6) != 0)
-			printenvList(data->env);
-		else
-			export(data->env, trimmed_cmd);
-		i = 1;
-	}
-	else if (ft_strnstr(trimmed_cmd, "echo ", 5) != 0)
-	{
-		echo(trimmed_cmd);
-		i = 1;
-	}
-	return (i);
+// 	i = 0;
+// 	trimmed_cmd = ft_strtrim(cmd, " ");
+// 	trimmed_cmd = ft_strtrim(cmd, "\t");
+// 	if (!trimmed_cmd)
+// 		return (1);
+// 	else if (strncmp(trimmed_cmd, "clear") == 0)
+// 	{
+// 		custom_clear();
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+// 	{
+// 		printenvList(data->env);
+// 		printf("\n");
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
+// 	{
+// 		printhstList(h);
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
+// 	{
+// 		ft_getactivepath(data);
+// 		i = 1;
+// 	}
+// 	else if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
+// 	{
+// 		if (ft_strncmp(trimmed_cmd, "export", 6) != 0)
+// 			printenvList(data->env);
+// 		else
+// 			export(data->env, trimmed_cmd);
+// 		i = 1;
+// 	}
+// 	else if (ft_strnstr(cmd, "echo", 4) != 0)
+// 	{
+// 		echo(cmd);
+// 		i = 1;
+// 	}
+// 	return (i);
+// }
+int handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+{
+    char *trimmed_cmd;
+    int i;
+
+    i = 0;
+    trimmed_cmd = ft_strtrim(cmd, " \t");
+    
+    if (!trimmed_cmd)
+        return 1;
+    else if (ft_strncmp(trimmed_cmd, "clear", 5) == 0)
+    {
+        custom_clear();
+        i = 1;
+    }
+    else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+    {
+        printenvList(data->env);
+        printf("\n");
+        i = 1;
+    }
+    else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
+    {
+        printhstList(h);
+        i = 1;
+    }
+    else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
+    {
+        ft_getactivepath(data);
+        i = 1;
+    }
+    else if (ft_strncmp(trimmed_cmd, "export", 6) == 0)
+    {
+        export(data->env, trimmed_cmd);
+        i = 1;
+    }
+    else if (ft_strncmp(cmd, "echo", 4) == 0)
+    {
+        echo(cmd);
+        i = 1;
+    }
+
+    free(trimmed_cmd);
+    return i;
 }
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
-	//	handle_command(cmd, data, h);
 	if (ft_strnstr(cmd, "cd", 2) != 0)
 	{
 		cd(cmd);
@@ -492,10 +382,6 @@ void	exec(char *s, t_data *data, t_cmd_hist *h)
 	char	**t;
 	int		i;
 
-	// if (ft_strnstr(s, "||", 2))
-	// {
-	// 	return ;
-	// }
 	t = ft_split(s, '&');
 	i = 0;
 	while (t[i])
@@ -530,6 +416,7 @@ void	termios(t_data *data)
 		}
 		if (ft_strlen(command->history))
 		{
+			add_history(command->history);
 			command->history_index = ++i;
 			command->history_size = ft_strlen(command->history);
 			command->next = h;
@@ -542,6 +429,7 @@ void	termios(t_data *data)
 		if (!command)
 			break ;
 	}
+	// restoreTerminalAttributes();
 	restore_termios(&saved_attributes);
 	while (h != NULL)
 	{
@@ -551,3 +439,315 @@ void	termios(t_data *data)
 		free(temp);
 	}
 }
+
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <unistd.h>
+// #include <termios.h>
+// #include <signal.h>
+// #include <sys/types.h>
+// #include <sys/wait.h>
+// #include <readline/readline.h>
+// #include <readline/history.h>
+
+// char	*getprpath(char *s)
+// {
+// 	int	i;
+
+// 	i = 0;
+// 	while (s[i])
+// 		i++;
+// 	while (s[i] != '/')
+// 		i--;
+// 	return (ft_substr(s, 0, i));
+// }
+
+// void	cd(char *str)
+// {
+// 	size_t	i;
+// 	char	*s;
+// 	char	**t;
+// 	char	**tmp;
+
+// 	t = ft_split(str, ' ');
+// 	i = pathconf(".", _PC_PATH_MAX);
+// 	s = (char *)malloc((size_t)i);
+// 	if (!s)
+// 		return ;
+// 	s = getcwd(s, i);
+// 	if (t[1])
+// 	{
+// 		if (strnstr(t[1], "..", 2) != 0)
+// 			s = getprpath(s);
+// 		if (ft_strtrim(t[1], ".."))
+// 		{
+// 			s = ft_strjoin(s, "/");
+// 			chdir(ft_strjoin(s, ft_strtrim(t[1], "..")));
+// 		}
+// 	}
+// 	else if (!ft_strncmp(str, "cd", 2))
+// 	{
+// 		tmp = ft_split(s, '/');
+// 		if (tmp[0] && tmp[1])
+// 		{
+// 			s = ft_strjoin("/", tmp[0]);
+// 			s = ft_strjoin(s, "/");
+// 			s = ft_strjoin(s, tmp[1]);
+// 			s = ft_strjoin(s, "/");
+// 			chdir(s);
+// 		}
+// 	}
+// }
+// void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
+// {
+// 	if (ft_strnstr(cmd, "cd", 2) != 0)
+// 	{
+// 		cd(cmd);
+// 	}
+// 	else
+// 		commandd(cmd, data, h);
+// }
+// void	echo(char *s)
+// {
+// 	char	**t;
+
+// 	t = ft_splitonsteroids(s, ' ');
+// 	if (t)
+// 	{
+// 		for (int i = 1; t[i] != NULL; i++)
+// 		{
+// 			printf("Element %d: \"%s\"\n", i, t[i]);
+// 			free(t[i]);
+// 		}
+// 		free(t);
+// 	}
+// 	else
+// 	{
+// 		printf("Splitting failed.\n");
+// 	}
+// }
+// void	addtoenv(const char *env, t_env **data)
+// {
+// 	t_env	*new_env;
+// 	t_env	*temp;
+
+// 	new_env = (t_env *)malloc(sizeof(t_env));
+// 	if (new_env == NULL)
+// 	{
+// 		return ;
+// 	}
+// 	new_env->l = strdup(env);
+// 	new_env->next = NULL;
+// 	if (*data == NULL)
+// 	{
+// 		*data = new_env;
+// 	}
+// 	else
+// 	{
+// 		temp = *data;
+// 		while (temp->next != NULL)
+// 		{
+// 			temp = temp->next;
+// 		}
+// 		temp->next = new_env;
+// 	}
+// }
+// void reset_handler(int signo)
+// {
+//     (void)signo;
+//     rl_on_new_line();
+//     rl_replace_line("", 0);
+//     rl_redisplay();
+// }
+
+// void handle_interrupt(int signal)
+// {
+//     if (signal == SIGQUIT)
+//     {
+//         printf("\nCtrl+D detected. Exiting...\n");
+//         exit(EXIT_SUCCESS);
+//     }
+// }
+
+// void init_termios(struct termios *saved_attributes)
+// {
+//     struct termios new_attributes;
+
+//     if (tcgetattr(STDIN_FILENO, saved_attributes) == -1)
+//     {
+//         perror("tcgetattr");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     new_attributes = *saved_attributes;
+//     new_attributes.c_lflag &= ~(ICANON | ECHO);
+//     new_attributes.c_cc[VMIN] = 1;
+//     new_attributes.c_cc[VTIME] = 0;
+
+//     if (tcsetattr(STDIN_FILENO, TCSANOW, &new_attributes) == -1)
+//     {
+//         perror("tcsetattr");
+//         exit(EXIT_FAILURE);
+//     }
+// }
+
+// void restore_termios(struct termios *saved_attributes)
+// {
+//     if (tcsetattr(STDIN_FILENO, TCSANOW, saved_attributes) == -1)
+//     {
+//         perror("tcsetattr");
+//         exit(EXIT_FAILURE);
+//     }
+// }
+// void	export(t_env *env, char *s)
+// {
+// 	char	*var;
+
+// 	var = malloc(ft_strlen(s) - 6 + 1);
+// 	ft_strlcpy(var, s + 6, ft_strlen(s) - 6);
+// 	addtoenv(var, &env);
+// }
+
+// char *read_command(t_data *data)
+// {
+//     ft_getactivepath(data);
+//     return (readline(""));
+// }
+
+// void custom_clear(void)
+// {
+//     const char *clear_sequence;
+
+//     if (isatty(STDOUT_FILENO))
+//     {
+//         clear_sequence = "\x1b[H\x1b[2J";
+//         write(STDOUT_FILENO, clear_sequence, strlen(clear_sequence));
+//     }
+// }
+
+// void	exec(char *s, t_data *data, t_cmd_hist *h)
+// {
+// 	char	**t;
+// 	int		i;
+
+// 	t = ft_split(s, '&');
+// 	i = 0;
+// 	while (t[i])
+// 	{
+// 		run_command(t[i], data, h);
+// 		i++;
+// 	}
+// }
+
+// void	setup_signals(void)
+// {
+// 	signal(SIGQUIT, SIG_IGN);
+// 	signal(SIGTERM, SIG_IGN);
+// 	signal(SIGINT, reset_handler);
+// }
+// int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+// {
+// 	char	*trimmed_cmd;
+// 	int		i;
+
+// 	i = 0;
+// 	trimmed_cmd = ft_strtrim(cmd," ");
+// 	if (!ft_split(*ft_split(cmd, '\t'), ' ') || !ft_split(cmd, ' ')
+// 		|| !ft_split(cmd, '\t'))
+// 		i = 1;
+// 	else if (strncmp(trimmed_cmd, "clear") == 0)
+// 	{
+// 		custom_clear();
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+// 	{
+// 		printenvList(data->env);
+// 		printf("\n");
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
+// 	{
+// 		printhstList(h);
+// 		i = 1;
+// 	}
+// 	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
+// 	{
+// 		ft_getactivepath(data);
+// 		i = 1;
+// 	}
+// 	else if (ft_strnstr(trimmed_cmd, "export", 6) != 0)
+// 	{
+// 		if (ft_strncmp(trimmed_cmd, "export", 6) != 0)
+// 			printenvList(data->env);
+// 		else
+// 			export(data->env, trimmed_cmd);
+// 		i = 1;
+// 	}
+// 	else if (ft_strnstr(trimmed_cmd, "echo ", 5) != 0)
+// 	{
+// 		echo(trimmed_cmd);
+// 		i = 1;
+// 	}
+// 	return (i);
+// }
+// // ... (other functions remain unchanged)
+
+// void termios(t_data *data)
+// {
+//     struct termios saved_attributes;
+//     t_cmd_hist *command;
+//     int i;
+//     t_cmd_hist *temp;
+//     t_cmd_hist *h;
+
+//     h = NULL;
+//     i = 0;
+//     command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
+//     if (!command)
+//         return ;
+
+//     setup_signals();
+//     init_termios(&saved_attributes);
+
+//     while (1)
+//     {
+//         char *input = read_command(data);
+
+//         if (!input)
+//         {
+//             free(command);
+//             break ;
+//         }
+
+//         command->history = strdup(input);
+//         free(input);
+
+//         if (strlen(command->history))
+//         {
+//             command->history_index = ++i;
+//             command->history_size = strlen(command->history);
+//             command->next = h;
+//             h = command;
+//         }
+
+//         if (ft_strnstr(command->history, "exit", 4) != 0)
+//             break ;
+
+//         exec(command->history, data, h);
+//         command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
+//         if (!command)
+//             break ;
+//     }
+
+//     restore_termios(&saved_attributes);
+
+//     while (h != NULL)
+//     {
+//         temp = h;
+//         h = h->next;
+//         free(temp->history);
+//         free(temp);
+//     }
+// }

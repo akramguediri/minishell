@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/04 18:41:34 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/15 14:41:51 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,12 @@
 # include <termios.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <sys/errno.h>
 /*other*/
 # include "executer/executer.h"
 # include "libft/libft.h"
 # include "parser/parser.h"
-
+extern char **environ;
 /*linked list*/
 typedef struct s_env
 {
@@ -93,5 +94,8 @@ void	ft_get(t_data *data);
 char	*heredoc(const char *delimiter);
 char	**ft_splitonsteroids(char *s, char c);
 void	free_split(char **words);
+int isUpArrowPressed(char* input);
+void restoreTerminalAttributes();
+int	ft_execvp(const char *file, char *const argv[]);
 
 #endif

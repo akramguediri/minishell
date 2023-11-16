@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:58:41 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/04 18:43:15 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/16 18:57:19 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,6 @@ char	**ft_splitonsteroids(char *s, char c)
 	}
 	if (s2)
 		s = ft_strjoin(s, s2);
-	printf("%s", s);
 	t = (char **)malloc((ft_wordcount(s, c) + 1) * sizeof(char *));
 	if (!t)
 		return (NULL);
@@ -124,6 +123,7 @@ char	**ft_splitonsteroids(char *s, char c)
 				k++;
 			}
 			t[j][len] = '\0';
+			t[j] = ft_strtrim(t[j],"'\"");
 			j++;
 		}
 		l += ft_split_len(s, l, c);
@@ -135,7 +135,7 @@ char	**ft_splitonsteroids(char *s, char c)
 
 // int	main(void)
 // {
-// 	char input[] = "\"This is a test 'string' with quotes and, spaces \"'between them.";
+// 	char input[] = "echo \"fgng fbcbgcg cfbfg\"";
 // 	char c = ' ';
 
 // 	char **result = ft_splitonsteroids(input, c);

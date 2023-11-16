@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/10/31 18:27:45 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/16 19:41:18 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,10 @@ void	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 	char	*token;
 	char	*args[64];
 	int		arg_count;
-
+	char	*cmd2;
 	arg_count = 0;
+	if (cmd)
+		cmd2 = ft_strdup(cmd);
 	token = strtok(cmd, " ");
 	while (token != NULL)
 	{
@@ -93,12 +95,13 @@ void	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 		token = strtok(NULL, " ");
 	}
 	args[arg_count] = NULL;
-	if (handle_command(cmd, data, h) == 0)
+	if (handle_command(cmd2, data, h) == 0)
 	{
-		execvp(args[0], args);
-		perror("Execvp failed");
+		ft_execvp(args[0], args);
+		perror("failed");
 		exit(EXIT_FAILURE);
 	}
+	exit(EXIT_SUCCESS);
 }
 
 void	wait_for_children(int num_cmds, pid_t children[])
@@ -249,7 +252,7 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 	int	i;
 
 	cmddata->r = 0;
-	cmddata->input_command = ft_split(input_command2, ' ');
+	cmddata->input_command = ft_splitonsteroids(input_command2, ' ');
 	i = 0;
 	cmddata->input_file = NULL;
 	cmddata->output_file = NULL;
@@ -262,7 +265,7 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 		{
 			if (cmddata->input_command[i + 1])
 			{
-				cmddata->input_file = strdup(cmddata->input_command[i + 1]);
+				cmddata->input_file = ft_strdup(cmddata->input_command[i + 1]);
 				i++;
 			}
 		}
@@ -273,7 +276,7 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 				cmddata->r = 1;
 			if (cmddata->input_command[i + 1])
 			{
-				cmddata->output_file = strdup(cmddata->input_command[i + 1]);
+				cmddata->output_file = ft_strdup(cmddata->input_command[i + 1]);
 				i++;
 			}
 		}
