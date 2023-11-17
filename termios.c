@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/16 19:38:38 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/17 00:43:07 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,7 +217,7 @@ void	echo(char *s)
 	int		i = 1;
 	
 	t = ft_splitonsteroids(s, ' ');
-	if (ft_strnstr(t[1], "-n", 3))
+	if (t[i] && ft_strnstr(t[1], "-n", 3))
 	{
 		r = 1;
 		i = 2;
@@ -429,7 +429,6 @@ void	termios(t_data *data)
 		if (!command)
 			break ;
 	}
-	// restoreTerminalAttributes();
 	restore_termios(&saved_attributes);
 	while (h != NULL)
 	{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_piping.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/16 19:41:18 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/16 22:52:15 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ void	redirect_input(int i, char *input_file, int pipe_fd[][2])
 
 	if (i > 0)
 	{
-		// Redirect input from the previous pipe
 		dup2(pipe_fd[i - 1][0], STDIN_FILENO);
 		close(pipe_fd[i - 1][0]);
 	}
@@ -79,12 +78,13 @@ void	redirect_output(int i, int num_cmds, char *output_file, int r,
 	}
 }
 
-void	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
+int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 {
 	char	*token;
 	char	*args[64];
 	int		arg_count;
 	char	*cmd2;
+	
 	arg_count = 0;
 	if (cmd)
 		cmd2 = ft_strdup(cmd);
@@ -223,8 +223,10 @@ char	*process_command(char *command)
 		}
 	}
 	processed[j] = '\0';
-	free(input_file);
-	free(output_file);
+	if (input_file != NULL)
+    	free(input_file);
+	if (output_file != NULL)
+    	free(output_file);
 	return (processed);
 }
 int	count_characters(const char *s, char c)

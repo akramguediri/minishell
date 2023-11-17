@@ -1,44 +1,0 @@
-SECURITYSESSIONID=186a8
-USER=aguediri
-MallocNanoZone=0
-COMMAND_MODE=unix2003
-PATH=/Users/aguediri/.brew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki:/Library/Apple/usr/bin:/Users/aguediri/.brew/bin
-HOME=/Users/aguediri
-SHELL=/bin/zsh
-LaunchInstanceID=9B1695B2-9D20-4885-8DFC-E868A37C4221
-__CF_USER_TEXT_ENCODING=0x18ADE:0x0:0x0
-XPC_SERVICE_NAME=0
-SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.7ReZiZMfYj/Listeners
-XPC_FLAGS=0x0
-LOGNAME=aguediri
-TMPDIR=/var/folders/zz/zyxvpxvq6csfxvn_n000c_vr0032py/T/
-ORIGINAL_XDG_CURRENT_DESKTOP=undefined
-SHLVL=1
-PWD=/Users/aguediri/Desktop/Minishell
-OLDPWD=/Users/aguediri/Desktop/Minishell
-HOMEBREW_CACHE=/tmp/aguediri/Homebrew/Caches
-HOMEBREW_TEMP=/tmp/aguediri/Homebrew/Temp
-TERM_PROGRAM=vscode
-TERM_PROGRAM_VERSION=1.83.0
-LANG=en_US.UTF-8
-COLORTERM=truecolor
-GIT_ASKPASS=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass.sh
-VSCODE_GIT_ASKPASS_NODE=/Applications/Visual Studio Code.app/Contents/Frameworks/Code Helper (Plugin).app/Contents/MacOS/Code Helper (Plugin)
-VSCODE_GIT_ASKPASS_EXTRA_ARGS=--ms-enable-electron-run-as-node
-VSCODE_GIT_ASKPASS_MAIN=/Applications/Visual Studio Code.app/Contents/Resources/app/extensions/git/dist/askpass-main.js
-VSCODE_GIT_IPC_HANDLE=/var/folders/zz/zyxvpxvq6csfxvn_n000c_vr0032py/T/vscode-git-4f0c44090b.sock
-VSCODE_INJECTION=1
-ZDOTDIR=/Users/aguediri
-USER_ZDOTDIR=/Users/aguediri
-TERM=xterm-256color
-_=/Users/aguediri/Desktop/Minishell/./minishell
-
-/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004hhissidhdfdfddgdfdf v    ^C[?2004l
-[?2004h^C[?2004l
-[?2004h^C[?2004l
-[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004hdfhfghf
-[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l/Users/aguediri/Desktop/Minishell %[?2004hdfhf
-[?2004l/Users/aguediri/Desktop/Minishell %[?2004hfghg
-[?2004l/Users/aguediri/Desktop/Minishell %[?2004hghg
-[?2004l/Users/aguediri/Desktop/Minishell %[?2004hhh
-[?2004l/Users/aguediri/Desktop/Minishell %[?2004h[?2004l
