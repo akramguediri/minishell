@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/20 22:54:26 by aguediri          #+#    #+#             */
-/*   Updated: 2023/04/01 04:06:07 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/17 07:02:37 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ char	*ft_strtrim(char const *s1, char const *set)
 	if (s1 == NULL || set == NULL)
 		return (NULL);
 	j = ft_strlen(s1) - 1;
+	if (j <= 0)
+		return (NULL);
 	if (*s1 == '\0')
 		return (ft_strdup(""));
 	while (isset(set, s1[i]) && s1[i] != '\0')

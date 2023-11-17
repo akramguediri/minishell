@@ -3,14 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   ft_piping.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/16 22:52:15 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/17 14:26:01 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	redirect_heredoc(char *heredoc_content)
+{
+	int		heredoc_pipe[2];
+	pid_t	cat_pid;
+
+	if (pipe(heredoc_pipe) == -1)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	cat_pid = fork();
+	if (cat_pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	else if (cat_pid == 0) // Child process (cat)
+	{
+		close(heredoc_pipe[0]); // Close the read end of the pipe
+		// Write heredoc content to the pipe
+		if (write(heredoc_pipe[1], heredoc_content, strlen(heredoc_content)) ==
+			-1)
+		{
+			perror("write");
+			exit(EXIT_FAILURE);
+		}
+		close(heredoc_pipe[1]); // Close the write end of the pipe
+		exit(EXIT_SUCCESS);
+	}
+	else // Parent process
+	{
+		close(heredoc_pipe[1]); // Close the write end of the pipe
+		// Redirect stdin to the read end of the pipe
+		dup2(heredoc_pipe[0], STDIN_FILENO);
+		close(heredoc_pipe[0]); // Close the read end of the pipe
+		// Wait for the child process to finish
+		if (waitpid(cat_pid, NULL, 0) == -1)
+		{
+			perror("waitpid");
+			exit(EXIT_FAILURE);
+		}
+	}
+}
 
 void	create_pipes(int num_pipes, int pipe_fd[][2])
 {
@@ -84,7 +128,7 @@ int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 	char	*args[64];
 	int		arg_count;
 	char	*cmd2;
-	
+
 	arg_count = 0;
 	if (cmd)
 		cmd2 = ft_strdup(cmd);
@@ -147,6 +191,12 @@ void	execute_pipes_with_io_redirection(struct CommandData cmddata,
 				close(pipe_fd[j][1]);
 				j++;
 			}
+			if (cmddata.heredoc)
+			{
+				char *const argv[] = {"echo", cmddata.heredoc, NULL};
+				ft_execvp("echo", argv);
+				// cmddata.t[i] = ft_strjoin("echo ", cmddata.heredoc);
+			}
 			execute_command2(cmddata.t[i], data, h);
 		}
 		i++;
@@ -174,7 +224,7 @@ char	*process_command(char *command)
 	{
 		return (NULL);
 	}
-	len = strlen(command);
+	len = ft_strlen(command);
 	processed = (char *)malloc(len + 1);
 	input_file = NULL;
 	output_file = NULL;
@@ -224,9 +274,9 @@ char	*process_command(char *command)
 	}
 	processed[j] = '\0';
 	if (input_file != NULL)
-    	free(input_file);
+		free(input_file);
 	if (output_file != NULL)
-    	free(output_file);
+		free(output_file);
 	return (processed);
 }
 int	count_characters(const char *s, char c)
@@ -254,16 +304,21 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 	int	i;
 
 	cmddata->r = 0;
-	cmddata->input_command = ft_splitonsteroids(input_command2, ' ');
+	cmddata->input_command = ft_split(input_command2, ' ');
 	i = 0;
 	cmddata->input_file = NULL;
 	cmddata->output_file = NULL;
 	cmddata->commandlist = NULL;
+	cmddata->heredoc = NULL;
 	cmddata->commandlist = malloc(1);
 	cmddata->commandlist[0] = '\0';
 	while (cmddata->input_command[i])
 	{
-		if (ft_strncmp(cmddata->input_command[i], "<", 1) == 0)
+		if (ft_strnstr(cmddata->input_command[i], "<<", 2) != 0)
+		{
+			cmddata->r = 2;
+		}
+		else if (ft_strncmp(cmddata->input_command[i], "<", 1) == 0)
 		{
 			if (cmddata->input_command[i + 1])
 			{
@@ -279,12 +334,14 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 			if (cmddata->input_command[i + 1])
 			{
 				cmddata->output_file = ft_strdup(cmddata->input_command[i + 1]);
+				cmddata->r = 0;
 				i++;
 			}
 		}
 		else
 		{
 			cmddata->processed = process_command(cmddata->input_command[i]);
+			cmddata->processed = cmddata->input_command[i];
 			if (cmddata->processed)
 			{
 				cmddata->commandlist = ft_strjoin(cmddata->commandlist,
@@ -293,17 +350,36 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 				free(cmddata->processed);
 			}
 		}
+		if (cmddata->r == 2)
+		{
+			cmddata->heredoc = heredoc(ft_strtrim(cmddata->input_command[i],
+					"<"));
+		}
 		i++;
 	}
 }
+int	countpipes(char **t, char c)
+{
+	int	i;
+	int	j;
 
+	i = 0;
+	j = 0;
+	while (t[i])
+	{
+		j += count_characters(t[i], c);
+		i++;
+	}
+	return (j);
+}
 int	commandd(char *input_command2, t_data *data, t_cmd_hist *h)
 {
 	struct CommandData	cmddata;
 
 	process_command_data(&cmddata, input_command2);
-	cmddata.t = ft_split(cmddata.commandlist, '|');
-	cmddata.num_cmds = count_characters(cmddata.commandlist, '|') + 1;
+	cmddata.t = ft_splitonsteroids(cmddata.commandlist, '|');
+	cmddata.num_cmds = count_characters(cmddata.commandlist, '|')
+		- countpipes(cmddata.t, '|') + 1;
 	execute_pipes_with_io_redirection(cmddata, data, h);
 	free(cmddata.commandlist);
 	free(cmddata.input_file);

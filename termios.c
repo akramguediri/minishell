@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/17 00:43:07 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/17 14:34:57 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,14 +195,15 @@ void	printecho(char *s)
 }
 void	printvar(char *s)
 {
-	int	i;
+	int		i;
 	char	**t;
+
 	i = 0;
 	while (environ[i])
 	{
 		if (ft_strnstr(environ[i], s, ft_strlen(s)))
 		{
-			t = ft_split(environ[i],'=');
+			t = ft_split(environ[i], '=');
 			printf("%s", t[1]);
 			break ;
 		}
@@ -213,9 +214,11 @@ void	echo(char *s)
 {
 	char	**t;
 	char	*e;
-	int		r = 0;
-	int		i = 1;
-	
+	int		r;
+	int		i;
+
+	r = 0;
+	i = 1;
 	t = ft_splitonsteroids(s, ' ');
 	if (t[i] && ft_strnstr(t[1], "-n", 3))
 	{
@@ -226,9 +229,11 @@ void	echo(char *s)
 	{
 		while (t[i] != NULL)
 		{
-			e = ft_strdup(ft_strtrim(ft_strtrim(t[i], "'"), "\""));
+			e = ft_strdup(ft_strtrim(t[i], "\"'"));
+			if (!e)
+				return;
 			if (ft_strchr(e, '$'))
-				printvar(ft_strtrim(e,"$"));
+				printvar(ft_strtrim(e, "$"));
 			else
 				printf("%s ", e);
 			i++;
@@ -241,39 +246,38 @@ void	echo(char *s)
 	if (r == 1)
 		printf("\n");
 }
-void	addtoenv(const char *env, t_env **data)
-{
-	t_env	*new_env;
-	t_env	*temp;
 
-	new_env = (t_env *)malloc(sizeof(t_env));
-	if (new_env == NULL)
-	{
-		return ;
-	}
-	new_env->l = strdup(env);
-	new_env->next = NULL;
-	if (*data == NULL)
-	{
-		*data = new_env;
-	}
-	else
-	{
-		temp = *data;
-		while (temp->next != NULL)
-		{
-			temp = temp->next;
-		}
-		temp->next = new_env;
-	}
+void addtoenv(char *s)
+{
+    int i = 0;
+
+    // Find the end of the environ array
+    while (environ[i] != NULL)
+    {
+        i++;
+    }
+
+    // Allocate space for the new environment variable
+    environ[i] = ft_strjoin(s, "");
+
+    // Check if memory allocation was successful
+    if (environ[i] == NULL)
+    {
+        perror("export");
+    }
 }
-void	export(t_env *env, char *s)
+
+void	export(char *s)
 {
 	char	*var;
 
-	var = malloc(ft_strlen(s) - 6 + 1);
-	ft_strlcpy(var, s + 6, ft_strlen(s) - 6);
-	addtoenv(var, &env);
+	var = malloc(strlen(s) - 6 + 1);
+	if (var != NULL)
+	{
+		strcpy(var, s + 6);
+		addtoenv(var);
+		free(var);
+	}
 }
 // int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 // {
@@ -321,50 +325,42 @@ void	export(t_env *env, char *s)
 // 	}
 // 	return (i);
 // }
-int handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
-    char *trimmed_cmd;
-    int i;
+	char	*trimmed_cmd;
+	int		i;
 
-    i = 0;
-    trimmed_cmd = ft_strtrim(cmd, " \t");
-    
-    if (!trimmed_cmd)
-        return 1;
-    else if (ft_strncmp(trimmed_cmd, "clear", 5) == 0)
-    {
-        custom_clear();
-        i = 1;
-    }
-    else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
-    {
-        printenvList(data->env);
-        printf("\n");
-        i = 1;
-    }
-    else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
-    {
-        printhstList(h);
-        i = 1;
-    }
-    else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
-    {
-        ft_getactivepath(data);
-        i = 1;
-    }
-    else if (ft_strncmp(trimmed_cmd, "export", 6) == 0)
-    {
-        export(data->env, trimmed_cmd);
-        i = 1;
-    }
-    else if (ft_strncmp(cmd, "echo", 4) == 0)
-    {
-        echo(cmd);
-        i = 1;
-    }
-
-    free(trimmed_cmd);
-    return i;
+	i = 0;
+	trimmed_cmd = ft_strtrim(cmd, " \t");
+	if (!trimmed_cmd)
+		return (1);
+	else if (ft_strncmp(trimmed_cmd, "clear", 5) == 0)
+	{
+		custom_clear();
+		i = 1;
+	}
+	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+	{
+		printenv();
+		i = 1;
+	}
+	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
+	{
+		printhstList(h);
+		i = 1;
+	}
+	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
+	{
+		ft_getactivepath(data);
+		i = 1;
+	}
+	else if (ft_strncmp(cmd, "echo", 4) == 0)
+	{
+		echo(cmd);
+		i = 1;
+	}
+	free(trimmed_cmd);
+	return (i);
 }
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
@@ -373,6 +369,8 @@ void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 	{
 		cd(cmd);
 	}
+	else if (ft_strnstr(cmd, "export", 6) != 0)
+		export(cmd);
 	else
 		commandd(cmd, data, h);
 }

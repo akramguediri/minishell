@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/16 18:57:23 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/17 12:46:44 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,15 @@ void	printenvList(t_env *envlist)
 	{
 		printf("%s\n", current->l);
 		current = current->next;
+	}
+}
+void	printenv(void)
+{
+	int i = 0;
+	while(environ[i])
+	{
+		printf("%s\n", environ[i]);
+		i++;
 	}
 }
 // void	printhstList(t_cmd_hist *envlist)

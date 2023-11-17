@@ -6,7 +6,7 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/15 14:41:51 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/17 11:38:59 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ struct CommandData {
     char *processed;
     int num_cmds;
     int r;
+	char	*heredoc;
 };
 
 // history
@@ -97,5 +98,6 @@ void	free_split(char **words);
 int isUpArrowPressed(char* input);
 void restoreTerminalAttributes();
 int	ft_execvp(const char *file, char *const argv[]);
+void	printenv(void);
 
 #endif
