@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_piping.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/17 14:26:01 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/18 16:13:23 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,13 +101,11 @@ void	redirect_output(int i, int num_cmds, char *output_file, int r,
 
 	if (i < num_cmds - 1)
 	{
-		// Redirect output to the next pipe
 		dup2(pipe_fd[i][1], STDOUT_FILENO);
 		close(pipe_fd[i][1]);
 	}
 	else if (output_file)
 	{
-		// Redirect output to a file
 		if (r == 1)
 			output_fd = open(output_file, O_WRONLY | O_CREAT | O_APPEND, 0644);
 		else
@@ -304,6 +302,7 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 	int	i;
 
 	cmddata->r = 0;
+	cmddata->here = 0;
 	cmddata->input_command = ft_split(input_command2, ' ');
 	i = 0;
 	cmddata->input_file = NULL;
@@ -316,7 +315,7 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 	{
 		if (ft_strnstr(cmddata->input_command[i], "<<", 2) != 0)
 		{
-			cmddata->r = 2;
+			cmddata->here = 2;
 		}
 		else if (ft_strncmp(cmddata->input_command[i], "<", 1) == 0)
 		{
@@ -330,11 +329,12 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 			|| ft_strncmp(cmddata->input_command[i], ">>", 2) == 0)
 		{
 			if (ft_strncmp(cmddata->input_command[i], ">>", 2) == 0)
+			{
 				cmddata->r = 1;
+			}
 			if (cmddata->input_command[i + 1])
 			{
 				cmddata->output_file = ft_strdup(cmddata->input_command[i + 1]);
-				cmddata->r = 0;
 				i++;
 			}
 		}
@@ -345,17 +345,18 @@ void	process_command_data(struct CommandData *cmddata, char *input_command2)
 			if (cmddata->processed)
 			{
 				cmddata->commandlist = ft_strjoin(cmddata->commandlist,
-					cmddata->processed);
+						cmddata->processed);
 				cmddata->commandlist = ft_strjoin(cmddata->commandlist, " ");
 				free(cmddata->processed);
 			}
 		}
-		if (cmddata->r == 2)
+		if (cmddata->here == 2)
 		{
 			cmddata->heredoc = heredoc(ft_strtrim(cmddata->input_command[i],
-					"<"));
+						"<"));
 		}
 		i++;
+
 	}
 }
 int	countpipes(char **t, char c)

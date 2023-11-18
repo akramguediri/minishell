@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/17 12:46:44 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/18 14:14:11 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	printenvList(t_env *envlist)
 void	printenv(void)
 {
 	int i = 0;
-	while(environ[i])
+	while(environ[i] != NULL)
 	{
 		printf("%s\n", environ[i]);
 		i++;
@@ -55,19 +55,11 @@ void	printenv(void)
 
 void	printhstList(t_cmd_hist *envlist)
 {
-   if (envlist == NULL)
-    {
-        return; // Base case: reached the end of the list
-    }
-    
-    // Recursively call the function on the next node first
-    printhstList(envlist->next);
-
-    // Print the current node's data
-    if (envlist->history != NULL)
-    {
-        printf("%d %s\n",envlist->history_index, envlist->history);
-    }
+	if (envlist == NULL)
+		return ;
+	printhstList(envlist->next);
+	if (envlist->history != NULL)
+		printf("%d %s\n",envlist->history_index, envlist->history);
 }
 
 void	ft_lstaddback(t_env **lst, t_env *new)
