@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/18 14:14:11 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/19 17:28:55 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,14 +44,6 @@ void	printenv(void)
 		i++;
 	}
 }
-// void	printhstList(t_cmd_hist *envlist)
-// {
-// 	while (envlist != NULL)
-// 	{
-// 		printf("%s\n", envlist->history);
-// 		envlist = envlist->next;
-// 	}
-// }
 
 void	printhstList(t_cmd_hist *envlist)
 {
@@ -122,6 +114,7 @@ void	ft_getactivepath(t_data *data)
 		data->path = ft_strdup(s);
 	printf("%s %%", s);
 }
+
 void	ft_get(t_data *data)
 {
 	size_t	i;

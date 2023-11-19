@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/18 15:41:17 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/18 18:11:37 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,5 +100,17 @@ int isUpArrowPressed(char* input);
 void restoreTerminalAttributes();
 int	ft_execvp(const char *file, char *const argv[]);
 void	printenv(void);
+int execute_with_path(const char *file, char *const argv[], char *path_copy);
+char *build_full_path(const char *dir, const char *file);
+char *get_path_copy();
+void free_resources(char *path_copy, char *full_path);
+
+char *process_input_file(char **input_command, int *i);
+char *process_output_file(char **input_command, int *i, int *r);
+char *process_regular_command(struct CommandData *cmddata, char *command);
+void process_heredoc(struct CommandData *cmddata, char *input_command);
+char *extract_input_file(char *command, int *i, int len);
+char *extract_output_file(char *command, int *i, int len);
+char *extract_regular_chars(char *command, int *i, int len);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/18 15:21:28 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/19 17:29:34 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ char	*getprpath(char *s)
 		i--;
 	return (ft_substr(s, 0, i));
 }
+
 void	cd(char *str)
 {
 	size_t	i;
@@ -243,9 +244,7 @@ void	echo(char *s)
 		}
 	}
 	else
-	{
 		printf("Splitting failed.\n");
-	}
 	if (r == 1)
 		printf("\n");
 }
@@ -316,8 +315,6 @@ void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
 	}
 	else
 		commandd(cmd, data, h);
-	// else if (ft_strnstr(cmd, "export", 6) != 0)
-	// 	export(cmd);
 }
 
 void	exec(char *s, t_data *data, t_cmd_hist *h)
@@ -343,7 +340,6 @@ void	my_export(char *arg)
 	value = strtok(NULL, "=");
 	if (key != NULL && value != NULL)
 	{
-		// Set the environment variable
 		if (setenv(key, value, 1) == 0)
 		{
 			printf("Exported: %s=%s\n", key, value);
@@ -359,10 +355,8 @@ void	my_export(char *arg)
 	}
 }
 
-// Function to implement the unset command
 void	my_unset(char *arg)
 {
-	// Assuming the argument is the key to be unset
 	if (unsetenv(arg) == 0)
 	{
 		printf("Unset: %s\n", arg);
@@ -372,8 +366,6 @@ void	my_unset(char *arg)
 		perror("Unset failed");
 	}
 }
-
-
 
 void	termios(t_data *data)
 {

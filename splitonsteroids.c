@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   splitonsteroids.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:58:41 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/17 12:47:08 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/19 12:56:02 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,28 +131,3 @@ char	**ft_splitonsteroids(char *s, char c)
 	t[j] = NULL;
 	return (t);
 }
-// #include <stdio.h>
-
-// int	main(void)
-// {
-// 	char input[] = "echo \"cat lol.c | cat > lol.c\"";
-// 	char c = ' ';
-
-// 	char **result = ft_splitonsteroids(input, c);
-
-// 	if (result)
-// 	{
-// 		for (int i = 0; result[i] != NULL; i++)
-// 		{
-// 			printf("Element %d: \"%s\"\n", i, result[i]);
-// 			free(result[i]);
-// 		}
-// 		free(result);
-// 	}
-// 	else
-// 	{
-// 		printf("Splitting failed.\n");
-// 	}
-
-// 	return (0);
-// }

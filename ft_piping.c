@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/18 16:13:23 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/19 17:28:26 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,26 +28,23 @@ void	redirect_heredoc(char *heredoc_content)
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
-	else if (cat_pid == 0) // Child process (cat)
+	else if (cat_pid == 0)
 	{
-		close(heredoc_pipe[0]); // Close the read end of the pipe
-		// Write heredoc content to the pipe
+		close(heredoc_pipe[0]);
 		if (write(heredoc_pipe[1], heredoc_content, strlen(heredoc_content)) ==
 			-1)
 		{
 			perror("write");
 			exit(EXIT_FAILURE);
 		}
-		close(heredoc_pipe[1]); // Close the write end of the pipe
+		close(heredoc_pipe[1]);
 		exit(EXIT_SUCCESS);
 	}
-	else // Parent process
+	else
 	{
-		close(heredoc_pipe[1]); // Close the write end of the pipe
-		// Redirect stdin to the read end of the pipe
+		close(heredoc_pipe[1]);
 		dup2(heredoc_pipe[0], STDIN_FILENO);
-		close(heredoc_pipe[0]); // Close the read end of the pipe
-		// Wait for the child process to finish
+		close(heredoc_pipe[0]);
 		if (waitpid(cat_pid, NULL, 0) == -1)
 		{
 			perror("waitpid");
@@ -193,7 +190,6 @@ void	execute_pipes_with_io_redirection(struct CommandData cmddata,
 			{
 				char *const argv[] = {"echo", cmddata.heredoc, NULL};
 				ft_execvp("echo", argv);
-				// cmddata.t[i] = ft_strjoin("echo ", cmddata.heredoc);
 			}
 			execute_command2(cmddata.t[i], data, h);
 		}
@@ -212,16 +208,14 @@ void	execute_pipes_with_io_redirection(struct CommandData cmddata,
 char	*process_command(char *command)
 {
 	int		len;
+	char	*processed;
 	char	*input_file;
 	char	*output_file;
 	int		i;
 	int		j;
-	char	*processed;
 
 	if (command == NULL)
-	{
 		return (NULL);
-	}
 	len = ft_strlen(command);
 	processed = (char *)malloc(len + 1);
 	input_file = NULL;
@@ -232,51 +226,86 @@ char	*process_command(char *command)
 	{
 		if (command[i] == '<')
 		{
-			i++; // Move past the '<' character
-			while (i < len && command[i] == ' ')
-			{
-				i++; // Skip spaces
-			}
-			if (i < len)
-			{
-				while (i < len && command[i] != ' ' && command[i] != '>')
-				{
-					input_file = (char *)realloc(input_file, j + 2);
-					input_file[j++] = command[i];
-					i++;
-				}
-				input_file[j] = '\0';
-			}
+			i++;
+			input_file = extract_input_file(command, &i, len);
 		}
 		else if (command[i] == '>')
 		{
-			i++; // Move past the '>' character
-			while (i < len && command[i] == ' ')
-				i++; // Skip spaces
-			if (i < len)
-			{
-				while (i < len && command[i] != ' ' && command[i] != '<')
-				{
-					output_file = (char *)realloc(output_file, j + 2);
-					output_file[j++] = command[i];
-					i++;
-				}
-				output_file[j] = '\0';
-			}
+			i++;
+			output_file = extract_output_file(command, &i, len);
 		}
 		else
-		{
-			processed[j++] = command[i];
-			i++;
-		}
+			processed[j++] = command[i++];
 	}
 	processed[j] = '\0';
-	if (input_file != NULL)
-		free(input_file);
-	if (output_file != NULL)
-		free(output_file);
+	free(input_file);
+	free(output_file);
 	return (processed);
 }
+
+char	*extract_input_file(char *command, int *i, int len)
+{
+	int		j;
+	char	*input_file;
+
+	while (*i < len && command[*i] == ' ')
+	{
+		(*i)++;
+	}
+	if (*i < len)
+	{
+		j = 0;
+		input_file = (char *)malloc(1);
+		while (*i < len && command[*i] != ' ' && command[*i] != '>')
+		{
+			input_file = (char *)realloc(input_file, j + 2);
+			input_file[j++] = command[(*i)++];
+		}
+		input_file[j] = '\0';
+		return (input_file);
+	}
+	return (NULL);
+}
+
+char	*extract_output_file(char *command, int *i, int len)
+{
+	int		j;
+	char	*output_file;
+
+	while (*i < len && command[*i] == ' ')
+	{
+		(*i)++;
+	}
+	if (*i < len)
+	{
+		j = 0;
+		output_file = (char *)malloc(1);
+		while (*i < len && command[*i] != ' ' && command[*i] != '<')
+		{
+			output_file = (char *)realloc(output_file, j + 2);
+			output_file[j++] = command[(*i)++];
+		}
+		output_file[j] = '\0';
+		return (output_file);
+	}
+	return (NULL);
+}
+
+char	*extract_regular_chars(char *command, int *i, int len)
+{
+	int		j;
+	char	*regular_chars;
+
+	j = 0;
+	regular_chars = (char *)malloc(len + 1);
+	while (*i < len && command[*i] != '<' && command[*i] != '>')
+	{
+		regular_chars[j++] = command[(*i)++];
+	}
+	regular_chars[j] = '\0';
+	return (regular_chars);
+}
+
 int	count_characters(const char *s, char c)
 {
 	int	count;
@@ -297,68 +326,99 @@ int	count_characters(const char *s, char c)
 	return (count);
 }
 
-void	process_command_data(struct CommandData *cmddata, char *input_command2)
+void	initialize_command_data(struct CommandData *cmddata,
+		char *input_command2)
 {
-	int	i;
-
 	cmddata->r = 0;
 	cmddata->here = 0;
 	cmddata->input_command = ft_split(input_command2, ' ');
-	i = 0;
 	cmddata->input_file = NULL;
 	cmddata->output_file = NULL;
 	cmddata->commandlist = NULL;
 	cmddata->heredoc = NULL;
 	cmddata->commandlist = malloc(1);
 	cmddata->commandlist[0] = '\0';
+}
+
+void	process_command_data(struct CommandData *cmddata, char *input_command2)
+{
+	int	i;
+
+	i = 0;
+	initialize_command_data(cmddata, input_command2);
 	while (cmddata->input_command[i])
 	{
 		if (ft_strnstr(cmddata->input_command[i], "<<", 2) != 0)
-		{
 			cmddata->here = 2;
-		}
 		else if (ft_strncmp(cmddata->input_command[i], "<", 1) == 0)
-		{
-			if (cmddata->input_command[i + 1])
-			{
-				cmddata->input_file = ft_strdup(cmddata->input_command[i + 1]);
-				i++;
-			}
-		}
+			cmddata->input_file = process_input_file(cmddata->input_command,
+					&i);
 		else if (ft_strncmp(cmddata->input_command[i], ">", 1) == 0
 			|| ft_strncmp(cmddata->input_command[i], ">>", 2) == 0)
-		{
-			if (ft_strncmp(cmddata->input_command[i], ">>", 2) == 0)
-			{
-				cmddata->r = 1;
-			}
-			if (cmddata->input_command[i + 1])
-			{
-				cmddata->output_file = ft_strdup(cmddata->input_command[i + 1]);
-				i++;
-			}
-		}
+			cmddata->output_file = process_output_file(cmddata->input_command,
+					&i, &(cmddata->r));
 		else
-		{
-			cmddata->processed = process_command(cmddata->input_command[i]);
-			cmddata->processed = cmddata->input_command[i];
-			if (cmddata->processed)
-			{
-				cmddata->commandlist = ft_strjoin(cmddata->commandlist,
-						cmddata->processed);
-				cmddata->commandlist = ft_strjoin(cmddata->commandlist, " ");
-				free(cmddata->processed);
-			}
-		}
+			cmddata->processed = process_regular_command(cmddata,
+					cmddata->input_command[i]);
 		if (cmddata->here == 2)
 		{
-			cmddata->heredoc = heredoc(ft_strtrim(cmddata->input_command[i],
-						"<"));
+			process_heredoc(cmddata, cmddata->input_command[i]);
+			cmddata->here = 0;
 		}
 		i++;
-
 	}
 }
+
+char	*process_input_file(char **input_command, int *i)
+{
+	char	*input_file;
+
+	input_file = NULL;
+	if (input_command[*i + 1])
+	{
+		input_file = ft_strdup(input_command[*i + 1]);
+		(*i)++;
+	}
+	return (input_file);
+}
+
+char	*process_output_file(char **input_command, int *i, int *r)
+{
+	char	*output_file;
+
+	output_file = NULL;
+	if (ft_strncmp(input_command[*i], ">>", 2) == 0)
+	{
+		*r = 1;
+	}
+	if (input_command[*i + 1])
+	{
+		output_file = ft_strdup(input_command[*i + 1]);
+		(*i)++;
+	}
+	return (output_file);
+}
+
+char	*process_regular_command(struct CommandData *cmddata, char *command)
+{
+	cmddata->processed = process_command(command);
+	cmddata->processed = command;
+	if (cmddata->processed)
+	{
+		cmddata->commandlist = ft_strjoin(cmddata->commandlist,
+				cmddata->processed);
+		cmddata->commandlist = ft_strjoin(cmddata->commandlist, " ");
+		free(cmddata->processed);
+	}
+	return (cmddata->processed);
+}
+
+void	process_heredoc(struct CommandData *cmddata, char *input_command)
+{
+	cmddata->here = 2;
+	cmddata->heredoc = heredoc(ft_strtrim(input_command, "<"));
+}
+
 int	countpipes(char **t, char c)
 {
 	int	i;
@@ -373,6 +433,7 @@ int	countpipes(char **t, char c)
 	}
 	return (j);
 }
+
 int	commandd(char *input_command2, t_data *data, t_cmd_hist *h)
 {
 	struct CommandData	cmddata;
