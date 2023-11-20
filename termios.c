@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/19 17:29:34 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/20 21:38:10 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,93 +77,98 @@ void	custom_clear(void)
 	}
 }
 
-char	*find_command_in_path(const char *command_name)
+char	*get_current_directory(void)
 {
-	char	*path;
-	char	*path_copy;
-	char	*token;
-	char	*full_path;
-	size_t	full_path_length;
+	size_t	path_max;
+	char	*current_directory;
 
-	path = getenv("PATH");
-	if (path == NULL)
+	path_max = pathconf(".", _PC_PATH_MAX);
+	current_directory = (char *)malloc(path_max);
+	if (!current_directory)
+	{
 		return (NULL);
-	path_copy = strdup(path);
-	if (path_copy == NULL)
-	{
-		perror("strdup");
-		exit(EXIT_FAILURE);
 	}
-	token = strtok(path_copy, ":");
-	while (token != NULL)
-	{
-		full_path_length = strlen(token) + 1 + strlen(command_name) + 2;
-		full_path = (char *)malloc(full_path_length);
-		if (full_path == NULL)
-		{
-			perror("malloc");
-			exit(EXIT_FAILURE);
-		}
-		sprintf(full_path, "%s/%s", token, command_name);
-		if (access(full_path, X_OK) == 0)
-		{
-			free(path_copy);
-			return (full_path);
-		}
-		free(full_path);
-		token = strtok(NULL, ":");
-	}
-	free(path_copy);
-	return (NULL);
+	return (getcwd(current_directory, path_max));
 }
 
-char	*getprpath(char *s)
+char	*get_parent_path(const char *path)
 {
 	int	i;
 
 	i = 0;
-	while (s[i])
+	while (path[i])
+	{
 		i++;
-	while (s[i] != '/')
+	}
+	while (i > 0 && path[i - 1] != '/')
+	{
 		i--;
-	return (ft_substr(s, 0, i));
+	}
+	return (ft_substr(path, 0, i));
 }
 
-void	cd(char *str)
+void	change_directory(const char *new_path)
 {
-	size_t	i;
-	char	*s;
-	char	**t;
-	char	**tmp;
+	chdir(new_path);
+}
 
-	t = ft_split(str, ' ');
-	i = pathconf(".", _PC_PATH_MAX);
-	s = (char *)malloc((size_t)i);
-	if (!s)
+void	handle_dotdot(const char *input, char *current_directory)
+{
+	char	*trimmed_path;
+	char	*new_path;
+
+	if (strnstr(input, "..", 2) != 0)
+	{
+		current_directory = get_parent_path(current_directory);
+	}
+	trimmed_path = ft_strtrim(input, "..");
+	if (trimmed_path)
+	{
+		new_path = ft_strjoin(current_directory, "/");
+		new_path = ft_strjoin(new_path, trimmed_path);
+		change_directory(new_path);
+		free(new_path);
+		free(trimmed_path);
+	}
+}
+
+void	handle_cd_command(char *current_directory)
+{
+	char	**path_parts;
+	char	*new_path;
+
+	path_parts = ft_split(current_directory, '/');
+	if (path_parts[0] && path_parts[1])
+	{
+		new_path = ft_strjoin("/", path_parts[0]);
+		new_path = ft_strjoin(new_path, "/");
+		new_path = ft_strjoin(new_path, path_parts[1]);
+		new_path = ft_strjoin(new_path, "/");
+		change_directory(new_path);
+		free(new_path);
+	}
+}
+
+void	cd(char *input)
+{
+	char	**tokens;
+	char	*current_directory;
+
+	tokens = ft_split(input, ' ');
+	if (!tokens)
+	{
 		return ;
-	s = getcwd(s, i);
-	if (t[1])
-	{
-		if (strnstr(t[1], "..", 2) != 0)
-			s = getprpath(s);
-		if (ft_strtrim(t[1], ".."))
-		{
-			s = ft_strjoin(s, "/");
-			chdir(ft_strjoin(s, ft_strtrim(t[1], "..")));
-		}
 	}
-	else if (!ft_strncmp(str, "cd", 2))
+	current_directory = get_current_directory();
+	if (tokens[1])
 	{
-		tmp = ft_split(s, '/');
-		if (tmp[0] && tmp[1])
-		{
-			s = ft_strjoin("/", tmp[0]);
-			s = ft_strjoin(s, "/");
-			s = ft_strjoin(s, tmp[1]);
-			s = ft_strjoin(s, "/");
-			chdir(s);
-		}
+		handle_dotdot(tokens[1], current_directory);
 	}
+	else if (!ft_strncmp(input, "cd", 2))
+	{
+		handle_cd_command(current_directory);
+	}
+	free(current_directory);
 }
 
 void	reset_handler(int signo)
@@ -214,38 +219,84 @@ void	printvar(char *s)
 	}
 }
 
+// void	echo(char *s)
+// {
+// 	char	**t;
+// 	char	*e;
+// 	int		r;
+// 	int		i;
+
+// 	r = 0;
+// 	i = 1;
+// 	t = ft_splitonsteroids(s, ' ');
+// 	if (t[i] && ft_strnstr(t[1], "-n", 3))
+// 	{
+// 		r = 1;
+// 		i = 2;
+// 	}
+// 	if (t)
+// 	{
+// 		while (t[i] != NULL)
+// 		{
+// 			e = ft_strdup(ft_strtrim(t[i], "\"'"));
+// 			if (!e)
+// 				return ;
+// 			if (ft_strchr(e, '$'))
+// 				printvar(ft_strtrim(e, "$"));
+// 			else
+// 				printf("%s ", e);
+// 			i++;
+// 		}
+// 	}
+// 	else
+// 		printf("Splitting failed.\n");
+// 	if (r == 0)
+// 		printf("\n");
+// }
+
+void	print_echo_argument(char *argument)
+{
+	char	*trimmed_argument;
+
+	trimmed_argument = ft_strdup(ft_strtrim(argument, "\"'"));
+	if (!trimmed_argument)
+		return ;
+	if (ft_strchr(trimmed_argument, '$') && argument[0] != '\'')
+		printvar(ft_strtrim(trimmed_argument, "$"));
+	else
+		printf("%s ", trimmed_argument);
+	free(trimmed_argument);
+}
+
+void	handle_echo_options(char **tokens, int *start_index)
+{
+	if (tokens[*start_index] && ft_strnstr(tokens[*start_index], "-n", 3))
+		(*start_index)++;
+}
+
 void	echo(char *s)
 {
-	char	**t;
-	char	*e;
-	int		r;
+	char	**tokens;
+	int		line;
+	int		start;
 	int		i;
 
-	r = 0;
-	i = 1;
-	t = ft_splitonsteroids(s, ' ');
-	if (t[i] && ft_strnstr(t[1], "-n", 3))
+	tokens = ft_splitonsteroids(s, ' ');
+	if (!tokens)
 	{
-		r = 1;
-		i = 2;
-	}
-	if (t)
-	{
-		while (t[i] != NULL)
-		{
-			e = ft_strdup(ft_strtrim(t[i], "\"'"));
-			if (!e)
-				return ;
-			if (ft_strchr(e, '$'))
-				printvar(ft_strtrim(e, "$"));
-			else
-				printf("%s ", e);
-			i++;
-		}
-	}
-	else
 		printf("Splitting failed.\n");
-	if (r == 1)
+		return ;
+	}
+	line = 1;
+	start = 1;
+	i = start;
+	handle_echo_options(tokens, &start);
+	while (tokens[i] != NULL)
+	{
+		print_echo_argument(tokens[i]);
+		i++;
+	}
+	if (line)
 		printf("\n");
 }
 
@@ -269,42 +320,58 @@ void	addtoenv(char *s)
 	}
 }
 
+int	handle_clear(void)
+{
+	custom_clear();
+	return (1);
+}
+
+int	handle_env(void)
+{
+	printenv();
+	return (1);
+}
+
+int	handle_history(t_cmd_hist *h)
+{
+	printhst_list(h);
+	return (1);
+}
+
+int	handle_pwd(t_data *data)
+{
+	ft_getactivepath(data);
+	printf("\n");
+	return (1);
+}
+
+int	handle_echo(char *cmd)
+{
+	echo(cmd);
+	return (1);
+}
+
 int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 {
 	char	*trimmed_cmd;
-	int		i;
+	int		result;
 
-	i = 0;
 	trimmed_cmd = ft_strtrim(cmd, " \t");
+	result = 0;
 	if (!trimmed_cmd)
-		return (1);
+		result = 1;
 	else if (ft_strncmp(trimmed_cmd, "clear", 5) == 0)
-	{
-		custom_clear();
-		i = 1;
-	}
+		result = handle_clear();
 	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
-	{
-		printenv();
-		i = 1;
-	}
+		result = handle_env();
 	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
-	{
-		printhstList(h);
-		i = 1;
-	}
+		result = handle_history(h);
 	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
-	{
-		ft_getactivepath(data);
-		i = 1;
-	}
+		result = handle_pwd(data);
 	else if (ft_strncmp(cmd, "echo", 4) == 0)
-	{
-		echo(cmd);
-		i = 1;
-	}
+		result = handle_echo(cmd);
 	free(trimmed_cmd);
-	return (i);
+	return (result);
 }
 
 void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
@@ -336,34 +403,50 @@ void	my_export(char *arg)
 	char	*key;
 	char	*value;
 
+	printf("%s\n\n", arg);
+	if (ft_strncmp(arg, "export", 6) != 0)
+		printenv();
 	key = strtok(arg, "=");
 	value = strtok(NULL, "=");
 	if (key != NULL && value != NULL)
 	{
 		if (setenv(key, value, 1) == 0)
-		{
 			printf("Exported: %s=%s\n", key, value);
-		}
 		else
-		{
 			perror("Export failed");
-		}
-	}
-	else
-	{
-		fprintf(stderr, "Invalid syntax for export\n");
 	}
 }
 
 void	my_unset(char *arg)
 {
 	if (unsetenv(arg) == 0)
-	{
 		printf("Unset: %s\n", arg);
-	}
 	else
-	{
 		perror("Unset failed");
+}
+
+void	process_command3(t_cmd_hist *command, t_data *data, t_cmd_hist *h)
+{
+	if (ft_strnstr(command->history, "exit", 4) != 0)
+		return ;
+	else if (strnstr(command->history, "export", 6) != 0)
+		my_export(command->history + 7);
+	else if (strncmp(command->history, "unset ", 6) == 0)
+		my_unset(command->history + 6);
+	else
+		exec(command->history, data, h);
+}
+
+void	free_history_nodes(t_cmd_hist *h)
+{
+	t_cmd_hist	*temp;
+
+	while (h != NULL)
+	{
+		temp = h;
+		h = h->next;
+		free(temp->history);
+		free(temp);
 	}
 }
 
@@ -372,7 +455,6 @@ void	termios(t_data *data)
 	struct termios	saved_attributes;
 	t_cmd_hist		*command;
 	int				i;
-	t_cmd_hist		*temp;
 	t_cmd_hist		*h;
 
 	h = NULL;
@@ -398,32 +480,11 @@ void	termios(t_data *data)
 			command->next = h;
 			h = command;
 		}
-		if (ft_strnstr(command->history, "exit", 4) != 0)
-		{
-			break ;
-		}
-		else if (strncmp(command->history, "export ", 7) == 0)
-		{
-			my_export(command->history + 7);
-		}
-		else if (strncmp(command->history, "unset ", 6) == 0)
-		{
-			my_unset(command->history + 6);
-		}
-		else
-		{
-			exec(command->history, data, h);
-		}
+		process_command3(command, data, h);
 		command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
 		if (!command)
 			break ;
 	}
 	restore_termios(&saved_attributes);
-	while (h != NULL)
-	{
-		temp = h;
-		h = h->next;
-		free(temp->history);
-		free(temp);
-	}
+	free_history_nodes(h);
 }

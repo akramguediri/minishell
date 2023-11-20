@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/19 17:28:55 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/20 16:54:55 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ void	free_up(char **arr)
 	}
 	free(arr);
 }
-void	printenvList(t_env *envlist)
+
+void	printenvlist(t_env *envlist)
 {
 	t_env	*current;
 
@@ -35,23 +36,26 @@ void	printenvList(t_env *envlist)
 		current = current->next;
 	}
 }
+
 void	printenv(void)
 {
-	int i = 0;
-	while(environ[i] != NULL)
+	int	i;
+
+	i = 0;
+	while (environ[i] != NULL)
 	{
 		printf("%s\n", environ[i]);
 		i++;
 	}
 }
 
-void	printhstList(t_cmd_hist *envlist)
+void	printhst_list(t_cmd_hist *envlist)
 {
 	if (envlist == NULL)
 		return ;
-	printhstList(envlist->next);
+	printhst_list(envlist->next);
 	if (envlist->history != NULL)
-		printf("%d %s\n",envlist->history_index, envlist->history);
+		printf("%d %s\n", envlist->history_index, envlist->history);
 }
 
 void	ft_lstaddback(t_env **lst, t_env *new)
@@ -76,13 +80,13 @@ void	ft_init(char **env, t_data **data)
 	t_env	*new_env;
 
 	i = 0;
-	*data = (t_data *)malloc(sizeof(t_data)); // Allocate memory for t_data
-	(*data)->env = NULL;                      // Initialize the env field
+	*data = (t_data *)malloc(sizeof(t_data));
+	(*data)->env = NULL;
 	while (env[i])
 	{
 		new_env = (t_env *)malloc(sizeof(t_env));
 		new_env->l = ft_strdup(env[i]);
-		new_env->next = NULL; // Initialize the 'next' pointer
+		new_env->next = NULL;
 		if ((*data)->env == NULL)
 			(*data)->env = new_env;
 		else
@@ -109,7 +113,6 @@ void	ft_getactivepath(t_data *data)
 	if (!s)
 		return ;
 	s = getcwd(s, i);
-	
 	if (s)
 		data->path = ft_strdup(s);
 	printf("%s %%", s);
@@ -134,7 +137,6 @@ void	ft_get(t_data *data)
 	data->path = ft_strdup(t[i--]);
 	printf("%s %% >>", t[i]);
 }
-
 
 int	main(int argc, char **argv, char **env)
 {

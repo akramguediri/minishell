@@ -6,12 +6,12 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/03 03:23:49 by aguediri          #+#    #+#             */
-/*   Updated: 2023/04/08 15:56:55 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/20 17:46:08 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include<stdlib.h>
-#include"libft.h"
+#include "libft.h"
+#include <stdlib.h>
 
 void	ft_lstclear(t_list **lst, void (*del)(void *))
 {

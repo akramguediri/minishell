@@ -6,11 +6,11 @@
 /*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/14 15:57:04 by aguediri          #+#    #+#             */
-/*   Updated: 2023/04/12 19:07:49 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/20 19:02:30 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include<stddef.h>
+#include <stddef.h>
 
 int	ft_strlen(const char *str)
 {

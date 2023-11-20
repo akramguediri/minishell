@@ -1,22 +1,23 @@
-Makefile
-README.md
-executer
-ft_execvp.c
 ft_execvp.o
-ft_piping.c
 ft_piping.o
 heredoc.c
 heredoc.o
 history.c
 history.o
-libft
-minishell
-minishell.c
-minishell.h
 minishell.o
-output.txt
-parser
 splitonsteroids.c
 splitonsteroids.o
 termios.c
 termios.o
+test.o
+#	rm -f libft/*.o libft/libft.a
+# Clean up object files and the NAMEutable
+# Compile individual source files
+# Compile the NAMEutable
+# Compiler and flags
+# Default target
+# Main Makefile
+# Object files
+# Phony targets
+# Source files
+      10      41     234

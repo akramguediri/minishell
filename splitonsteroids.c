@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   splitonsteroids.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:58:41 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/19 12:56:02 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/20 21:36:36 by aguediri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ static int	ft_wordcount(char const *s, char c)
 			inside_double_quotes = !inside_double_quotes;
 		if (((s[i] != c && s[i] != ' ' && s[i] != '\t') || inside_single_quotes
 				|| inside_double_quotes) && (i == 0 || (s[i - 1] == c || s[i
-					- 1] == ' ' || s[i - 1] == '\t')))
+						- 1] == ' ' || s[i - 1] == '\t')))
 		{
 			count++;
 		}
@@ -84,50 +84,48 @@ static int	ft_split_start(const char *s, char c, int l)
 
 char	**ft_splitonsteroids(char *s, char c)
 {
-	char	**t;
-	char	*s2;
-	int		j;
-	int		l;
-	int		k;
-	int		len;
+	t_steroids	st;
 
-	j = 0;
-	l = 0;
-	s2 = NULL;
+	st.j = 0;
+	st.l = 0;
+	st.s2 = NULL;
 	if (count_characters(s, '\'') % 2 != 0)
 	{
-		s2 = heredoc("\'");
+		st.s2 = heredoc("\'");
+		st.s2 = ft_strjoin(st.s2, "\'");
 	}
 	else if (count_characters(s, '\"') % 2 != 0)
 	{
-		s2 = heredoc("\"");
+		st.s2 = heredoc("\"");
+		st.s2 = ft_strjoin(st.s2, "\"");
 	}
-	if (s2)
-		s = ft_strjoin(s, s2);
-	t = (char **)malloc((ft_wordcount(s, c) + 1) * sizeof(char *));
-	if (!t)
+	if (st.s2)
+		s = ft_strjoin(s, st.s2);
+	st.result = (char **)malloc((ft_wordcount(s, c) + 1) * sizeof(char *));
+	if (!st.result)
 		return (NULL);
-	while (s[l])
+	while (s[st.l])
 	{
-		l = ft_split_start(s, c, l);
-		if (ft_split_len(s, l, c) != 0)
+		st.l = ft_split_start(s, c, st.l);
+		if (ft_split_len(s, st.l, c) != 0)
 		{
-			t[j] = (char *)malloc((ft_split_len(s, l, c) + 1) * sizeof(char));
-			if (!t[j])
-				return (free_split(t), NULL);
-			k = 0;
-			len = ft_split_len(s, l, c);
-			while (k < len)
+			st.result[st.j] = (char *)malloc((ft_split_len(s, st.l, c) + 1)
+					* sizeof(char));
+			if (!st.result[st.j])
+				return (free_split(st.result), NULL);
+			st.k = 0;
+			st.len = ft_split_len(s, st.l, c);
+			while (st.k < st.len)
 			{
-				t[j][k] = s[l + k];
-				k++;
+				st.result[st.j][st.k] = s[st.l + st.k];
+				st.k++;
 			}
-			t[j][len] = '\0';
-			t[j] = ft_strtrim(t[j],"'\"");
-			j++;
+			st.result[st.j][st.len] = '\0';
+			//st.result[st.j] = ft_strtrim(st.result[st.j], "'\"");
+			st.j++;
 		}
-		l += ft_split_len(s, l, c);
+		st.l += ft_split_len(s, st.l, c);
 	}
-	t[j] = NULL;
-	return (t);
+	st.result[st.j] = NULL;
+	return (st.result);
 }

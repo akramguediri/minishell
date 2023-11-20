@@ -15,25 +15,25 @@ Minishell serves as a platform for students to deepen their understanding of she
 |                     | X Stores the current working directory            |
 |                     | X Initializes termios structures for later use    |
 | **handle_line**     | X Handles user input and history                  |
-|                     | - Handles Ctrl + D                                |
+|                     | X Handles Ctrl + D                                |
 | **lexer**           | X Checks if a character is part of a token group  |
 |                     | X Handles bunny ears for token creation           |
-|                     | - Finds token start and end positions             |
+|                     | X Finds token start and end positions             |
 |                     | X Separates tokens in a line of code              |
 | **parser**          | X Locates the next command in tokens              |
-|                     | - Removes bunny ears from tokens                  |
+|                     | X Removes bunny ears from tokens                  |
 |                     | X Extracts commands based on index pair           |
 |                     | X Separates token list by pipe symbol             |
 |                     | X Removes space tokens                            |
 | **signals**         | X Resets terminal attributes                      |
 |                     | X Handles printing a new line after a signal      |
-| **vars**            | - Handles special index searching for variables   |
-|                     | - Resets temporary storage                        |
-|                     | - Breaks down the line based on indexes           |
-|                     | - Recombines strings found in temp storage        |
-|                     | - Handles variable replacement in commands        |
+| **vars**            | X Handles special index searching for variables   |
+|                     | X Resets temporary storage                        |
+|                     | X Breaks down the line based on indexes           |
+|                     | X Recombines strings found in temp storage        |
+|                     | X Handles variable replacement in commands        |
 | **redirection**     | X Handles input redirection                       |
-|                     | - Handles here document input redirection         |
+|                     | X Handles here document input redirection         |
 |                     | X Handles output redirection                      |
 |                     | X Handles append output redirection               |
 |                     | X Checks if a string is a redirection symbol      |
@@ -50,13 +50,13 @@ Minishell serves as a platform for students to deepen their understanding of she
 |                     | X Trims the "PATH=" string from a path            |
 |                     | X Appends the command name to the path            |
 | **builtins**        | X Handles the cd command                          |
-|                     | - Handles the echo command                        |
+|                     | X Handles the echo command                        |
 |                     | X Handles the exit command                        |
-|                     | - Handles the export command                      |
+|                     | X Handles the export command                      |
 |                     | X Handles the pwd command                         |
 |                     | X Handles the env command                         |
-|                     | - Handles the unset command                       |
-|                     | - Handles all builtin commands                    |
+|                     | X Handles the unset command                       |
+|                     | X Handles all builtin commands                    |
 
 
 ## Key Features
