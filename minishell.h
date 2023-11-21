@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/20 20:41:09 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/21 18:17:55 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ typedef struct s_data
 
 }							t_data;
 
-typedef struct						s_cmd_data
+typedef struct s_cmd_data
 {
 	char					**input_command;
 	char					*input_file;
@@ -59,6 +59,7 @@ typedef struct						s_cmd_data
 	int						r;
 	int						here;
 	char					*heredoc;
+	int						z;
 }							t_cmd_data;
 
 typedef struct s_steroids
@@ -70,7 +71,7 @@ typedef struct s_steroids
 	int						l;
 	int						k;
 	int						len;
-}t_steroids;
+}							t_steroids;
 
 typedef struct s_execution_data
 {
@@ -92,9 +93,9 @@ typedef struct s_cmd_history
 
 }							t_cmd_hist;
 
-void						ft_getactivepath(t_data *data);
+const char					*ft_getactivepath(t_data *data, int j);
 void						termios(t_data *data);
-void						execute_command(char *command);
+void						execute_command(char *command, int z);
 char						*find_command_in_path(const char *command_name);
 void						custom_clear(void);
 char						*read_command(t_data *data);
@@ -107,15 +108,17 @@ void						add_to_history(t_cmd_hist **h, t_cmd_hist *command,
 
 void						printhst_list(t_cmd_hist *envlist);
 void						ft_lstaddh(t_cmd_hist **lst, t_cmd_hist *new);
-void	pipes_io_redir(struct s_cmd_data cmddata, t_data *data, t_cmd_hist *h);
+void						pipes_io_redir(struct s_cmd_data cmddata,
+								t_data *data, t_cmd_hist *h);
 int							commandd(char *input_command2, t_data *data,
-								t_cmd_hist *h);
+								t_cmd_hist *h, int z);
 int							count_characters(const char *s, char c);
-void						run_command(char *cmd, t_data *data, t_cmd_hist *h);
+void						run_command(char *cmd, t_data *data, t_cmd_hist *h,
+								int z);
 void						cd(char *str);
-void						echo(char *s);
+void						echo(char *s, int z);
 int							handle_command(char *cmd, t_data *data,
-								t_cmd_hist *h);
+								t_cmd_hist *h, int z);
 void						ft_init(char **env, t_data **data);
 void						ft_get(t_data *data);
 char						*heredoc(const char *delimiter);
@@ -141,5 +144,6 @@ char						*extract_output_file(char *command, int *i,
 								int len);
 char						*extract_regular_chars(char *command, int *i,
 								int len);
+int							error_exit(char *s);
 
 #endif

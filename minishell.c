@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/20 16:54:55 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/21 18:18:55 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	error_exit(char *s)
+{
+	ft_putstr_fd(s, 2);
+	return (EXIT_FAILURE);
+}
 
 void	free_up(char **arr)
 {
@@ -102,7 +108,7 @@ void	ft_init(char **env, t_data **data)
 	}
 }
 
-void	ft_getactivepath(t_data *data)
+const char	*ft_getactivepath(t_data *data, int j)
 {
 	size_t	i;
 	char	*s;
@@ -111,11 +117,13 @@ void	ft_getactivepath(t_data *data)
 	s = (char *)malloc((size_t)i);
 	data = (t_data *)malloc(sizeof(t_data));
 	if (!s)
-		return ;
+		return (NULL);
 	s = getcwd(s, i);
 	if (s)
 		data->path = ft_strdup(s);
-	printf("%s %%", s);
+	if (j == 1)
+		printf("%s\n", s);
+	return(s);
 }
 
 void	ft_get(t_data *data)
@@ -143,7 +151,7 @@ int	main(int argc, char **argv, char **env)
 	t_data	*data;
 
 	if (argc < 1)
-		printf("error");
+		error_exit("error");
 	if (argv[0])
 		;
 	data = NULL;

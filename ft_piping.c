@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_piping.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/20 21:42:42 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/21 18:39:25 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,16 @@ void	redirect_heredoc(char *s)
 	pid_t	cat_pid;
 
 	if (pipe(heredoc_pipe) == -1)
-	{
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
+		error_exit("pipe");
 	cat_pid = fork();
 	if (cat_pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
+		error_exit("fork");
+
 	else if (cat_pid == 0)
 	{
 		close(heredoc_pipe[0]);
 		if (write(heredoc_pipe[1], s, strlen(s)) == -1)
-		{
-			perror("write");
-			exit(EXIT_FAILURE);
-		}
+			error_exit("write");
 		close(heredoc_pipe[1]);
 		exit(EXIT_SUCCESS);
 	}
@@ -45,10 +37,7 @@ void	redirect_heredoc(char *s)
 		dup2(heredoc_pipe[0], STDIN_FILENO);
 		close(heredoc_pipe[0]);
 		if (waitpid(cat_pid, NULL, 0) == -1)
-		{
-			perror("waitpid");
-			exit(EXIT_FAILURE);
-		}
+			error_exit("write pid");
 	}
 }
 
@@ -60,10 +49,7 @@ void	create_pipes(int num_pipes, int **pipe_fd)
 	while (i < num_pipes)
 	{
 		if (pipe(pipe_fd[i]) == -1)
-		{
-			perror("Pipe creation failed");
-			exit(EXIT_FAILURE);
-		}
+			error_exit("Pipe creation failed");
 		i++;
 	}
 }
@@ -81,10 +67,7 @@ void	redirect_input(int i, char *input_file, int **pipe_fd)
 	{
 		input_fd = open(input_file, O_RDONLY);
 		if (input_fd < 0)
-		{
-			perror("Failed to open input file");
-			exit(EXIT_FAILURE);
-		}
+			error_exit("Failed to open input file");
 		dup2(input_fd, STDIN_FILENO);
 		close(input_fd);
 	}
@@ -103,10 +86,10 @@ void	redirect_output(int i, struct s_cmd_data cmddata, int **pipe_fd)
 	{
 		if (cmddata.r == 1)
 			output_fd = open(cmddata.output_file, O_WRONLY | O_CREAT | O_APPEND,
-				0644);
+					0644);
 		else
 			output_fd = open(cmddata.output_file, O_CREAT | O_TRUNC | O_WRONLY,
-				0644);
+					0644);
 		if (output_fd < 0)
 		{
 			perror("Failed to open output file");
@@ -117,7 +100,7 @@ void	redirect_output(int i, struct s_cmd_data cmddata, int **pipe_fd)
 	}
 }
 
-int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
+int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h, int z)
 {
 	char	*token;
 	char	*args[64];
@@ -134,13 +117,12 @@ int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h)
 		token = strtok(NULL, " ");
 	}
 	args[arg_count] = NULL;
-	if (handle_command(cmd2, data, h) == 0)
+	if (handle_command(cmd2, data, h, z) == 0)
 	{
 		ft_execvp(args[0], args);
-		perror("failed");
-		exit(EXIT_FAILURE);
+		return(error_exit("Command not found\n"));
 	}
-	exit(EXIT_SUCCESS);
+	return (EXIT_SUCCESS);
 }
 
 void	wait_for_children(int num_cmds, pid_t children[])
@@ -179,10 +161,7 @@ void	pipes_io_redir(struct s_cmd_data cmddata, t_data *data, t_cmd_hist *h)
 	{
 		children[i] = fork();
 		if (children[i] < 0)
-		{
-			perror("Fork failed");
-			exit(EXIT_FAILURE);
-		}
+			error_exit("Fork failed");
 		if (children[i] == 0)
 		{
 			redirect_input(i, cmddata.input_file, pipe_fd);
@@ -201,7 +180,8 @@ void	pipes_io_redir(struct s_cmd_data cmddata, t_data *data, t_cmd_hist *h)
 				argv[2] = NULL;
 				ft_execvp("echo", argv);
 			}
-			execute_command2(cmddata.t[i], data, h);
+			cmddata.z = execute_command2(cmddata.t[i], data, h, cmddata.z);
+			exit(0);
 		}
 		i++;
 	}
@@ -405,12 +385,15 @@ void	initialize_s_cmd_data(struct s_cmd_data *cmddata, char *input_command2)
 {
 	cmddata->r = 0;
 	cmddata->here = 0;
-	cmddata->input_command = ft_split(input_command2, ' ');
+	if (input_command2)
+		cmddata->input_command = ft_split(input_command2, ' ');
+	else
+		cmddata->input_command = NULL;
 	cmddata->input_file = NULL;
 	cmddata->output_file = NULL;
 	cmddata->commandlist = NULL;
 	cmddata->heredoc = NULL;
-	cmddata->commandlist = malloc(1);
+	cmddata->commandlist = ft_calloc(1 , 1);
 	cmddata->commandlist[0] = '\0';
 }
 
@@ -420,7 +403,7 @@ void	process_s_cmd_data(struct s_cmd_data *cmddata, char *input_command2)
 
 	i = 0;
 	initialize_s_cmd_data(cmddata, input_command2);
-	while (cmddata->input_command[i])
+	while (cmddata->input_command[i] && cmddata->input_command)
 	{
 		if (ft_strnstr(cmddata->input_command[i], "<<", 2) != 0)
 			cmddata->here = 2;
@@ -484,7 +467,7 @@ char	*process_regular_command(struct s_cmd_data *cmddata, char *command)
 		cmddata->commandlist = ft_strjoin(cmddata->commandlist, " ");
 		free(cmddata->processed);
 	}
-	return (cmddata->processed);
+	return ((cmddata->processed));
 }
 
 void	process_heredoc(struct s_cmd_data *cmddata, char *input_command)
@@ -508,11 +491,12 @@ int	countpipes(char **t, char c)
 	return (j);
 }
 
-int	commandd(char *input_command2, t_data *data, t_cmd_hist *h)
+int	commandd(char *input_command2, t_data *data, t_cmd_hist *h, int z)
 {
 	struct s_cmd_data	cmddata;
 
-	process_s_cmd_data(&cmddata, input_command2);
+	cmddata.z = z;
+	process_s_cmd_data(&cmddata, ft_strtrim(input_command2, "|"));
 	cmddata.t = ft_splitonsteroids(cmddata.commandlist, '|');
 	cmddata.num_cmds = count_characters(cmddata.commandlist, '|')
 		- countpipes(cmddata.t, '|') + 1;

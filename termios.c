@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   termios.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/20 21:38:10 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/21 19:13:12 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,7 @@ char	*read_command(t_data *data)
 	char	*input;
 
 	input = NULL;
-	ft_getactivepath(data);
-	input = readline("");
+	input = readline(ft_strjoin(ft_getactivepath(data, 0), " %"));
 	return (input);
 }
 
@@ -201,7 +200,7 @@ void	printecho(char *s)
 	}
 }
 
-void	printvar(char *s)
+void	printvar(char *s, char *argument)
 {
 	int		i;
 	char	**t;
@@ -212,7 +211,10 @@ void	printvar(char *s)
 		if (ft_strnstr(environ[i], s, ft_strlen(s)))
 		{
 			t = ft_split(environ[i], '=');
-			printf("%s", t[1]);
+			if (argument[1] == '\'' && argument[0] == '\"')
+				printf("\'%s\' ", t[1]);
+			else
+				printf("%s", t[1]);
 			break ;
 		}
 		i++;
@@ -254,17 +256,25 @@ void	printvar(char *s)
 // 		printf("\n");
 // }
 
-void	print_echo_argument(char *argument)
+void	print_echo_argument(char *argument, int z)
 {
 	char	*trimmed_argument;
 
 	trimmed_argument = ft_strdup(ft_strtrim(argument, "\"'"));
 	if (!trimmed_argument)
 		return ;
-	if (ft_strchr(trimmed_argument, '$') && argument[0] != '\'')
-		printvar(ft_strtrim(trimmed_argument, "$"));
+	if (ft_strnstr(trimmed_argument, "$?", 2))
+		printf("%d", z);
+	else if (ft_strchr(trimmed_argument, '$') && (argument[0] != '\''
+			|| argument[1] == '\''))
+		printvar(ft_strtrim(trimmed_argument, "$"), argument);
 	else
-		printf("%s ", trimmed_argument);
+	{
+		if (argument[1] == '\"' && argument[0] == '\'')
+			printf("\"%s\" ", trimmed_argument);
+		else
+			printf("%s ", trimmed_argument);
+	}
 	free(trimmed_argument);
 }
 
@@ -274,7 +284,7 @@ void	handle_echo_options(char **tokens, int *start_index)
 		(*start_index)++;
 }
 
-void	echo(char *s)
+void	echo(char *s, int z)
 {
 	char	**tokens;
 	int		line;
@@ -293,7 +303,7 @@ void	echo(char *s)
 	handle_echo_options(tokens, &start);
 	while (tokens[i] != NULL)
 	{
-		print_echo_argument(tokens[i]);
+		print_echo_argument(tokens[i], z);
 		i++;
 	}
 	if (line)
@@ -340,18 +350,18 @@ int	handle_history(t_cmd_hist *h)
 
 int	handle_pwd(t_data *data)
 {
-	ft_getactivepath(data);
+	ft_getactivepath(data, 1);
 	printf("\n");
 	return (1);
 }
 
-int	handle_echo(char *cmd)
+int	handle_echo(char *cmd, int z)
 {
-	echo(cmd);
+	echo(cmd, z);
 	return (1);
 }
 
-int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
+int	handle_command(char *cmd, t_data *data, t_cmd_hist *h, int z)
 {
 	char	*trimmed_cmd;
 	int		result;
@@ -369,22 +379,22 @@ int	handle_command(char *cmd, t_data *data, t_cmd_hist *h)
 	else if (ft_strncmp(trimmed_cmd, "pwd", 3) == 0)
 		result = handle_pwd(data);
 	else if (ft_strncmp(cmd, "echo", 4) == 0)
-		result = handle_echo(cmd);
+		result = handle_echo(cmd, z);
 	free(trimmed_cmd);
 	return (result);
 }
 
-void	run_command(char *cmd, t_data *data, t_cmd_hist *h)
+void	run_command(char *cmd, t_data *data, t_cmd_hist *h, int z)
 {
 	if (ft_strnstr(cmd, "cd", 2) != 0)
 	{
 		cd(cmd);
 	}
 	else
-		commandd(cmd, data, h);
+		commandd(cmd, data, h, z);
 }
 
-void	exec(char *s, t_data *data, t_cmd_hist *h)
+void	exec(char *s, t_data *data, t_cmd_hist *h, int z)
 {
 	char	**t;
 	int		i;
@@ -393,7 +403,7 @@ void	exec(char *s, t_data *data, t_cmd_hist *h)
 	i = 0;
 	while (t[i])
 	{
-		run_command(t[i], data, h);
+		run_command(t[i], data, h, z);
 		i++;
 	}
 }
@@ -425,16 +435,22 @@ void	my_unset(char *arg)
 		perror("Unset failed");
 }
 
-void	process_command3(t_cmd_hist *command, t_data *data, t_cmd_hist *h)
+void	process_command3(t_cmd_hist *command, t_data *data, t_cmd_hist *h,
+		int z)
 {
-	if (ft_strnstr(command->history, "exit", 4) != 0)
+	if (ft_strlen(command->history) == 1)
+	{
+		ft_putendl_fd("Command not found", 2);
 		return ;
+	}
+	if (ft_strnstr(command->history, "exit", 5) != 0)
+		exit(0);
 	else if (strnstr(command->history, "export", 6) != 0)
 		my_export(command->history + 7);
 	else if (strncmp(command->history, "unset ", 6) == 0)
 		my_unset(command->history + 6);
 	else
-		exec(command->history, data, h);
+		exec(command->history, data, h, z);
 }
 
 void	free_history_nodes(t_cmd_hist *h)
@@ -456,9 +472,11 @@ void	termios(t_data *data)
 	t_cmd_hist		*command;
 	int				i;
 	t_cmd_hist		*h;
+	int				z;
 
 	h = NULL;
 	i = 0;
+	z = 0;
 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
 	if (!command)
 		return ;
@@ -480,7 +498,7 @@ void	termios(t_data *data)
 			command->next = h;
 			h = command;
 		}
-		process_command3(command, data, h);
+		process_command3(command, data, h, z);
 		command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
 		if (!command)
 			break ;
