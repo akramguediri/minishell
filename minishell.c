@@ -6,30 +6,11 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/21 20:20:00 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 12:24:53 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	error_exit(char *s)
-{
-	ft_putstr_fd(s, 2);
-	return (EXIT_FAILURE);
-}
-
-void	free_up(char **arr)
-{
-	int	i;
-
-	i = 0;
-	while (arr[i] != NULL)
-	{
-		free(arr[i]);
-		i++;
-	}
-	free(arr);
-}
 
 void	printenvlist(t_env *envlist)
 {
@@ -43,18 +24,6 @@ void	printenvlist(t_env *envlist)
 	}
 }
 
-void	printenv(void)
-{
-	int	i;
-
-	i = 0;
-	while (environ[i] != NULL)
-	{
-		printf("%s\n", environ[i]);
-		i++;
-	}
-}
-
 void	printhst_list(t_cmd_hist *envlist)
 {
 	if (envlist == NULL)
@@ -62,21 +31,6 @@ void	printhst_list(t_cmd_hist *envlist)
 	printhst_list(envlist->next);
 	if (envlist->history != NULL)
 		printf("%d %s\n", envlist->history_index, envlist->history);
-}
-
-void	ft_lstaddback(t_env **lst, t_env *new)
-{
-	t_env	*t;
-
-	if (*lst == NULL)
-	{
-		*lst = new;
-		return ;
-	}
-	t = *lst;
-	while (t->next != NULL)
-		t = t->next;
-	t->next = new;
 }
 
 void	ft_init(char **env, t_data **data)
@@ -144,18 +98,4 @@ void	ft_get(t_data *data)
 		i++;
 	data->path = ft_strdup(t[i--]);
 	printf("%s %% >>", t[i]);
-}
-
-int	main(int argc, char **argv, char **env)
-{
-	t_data	*data;
-
-	if (argc < 1)
-		error_exit("error");
-	if (argv[0])
-		;
-	data = NULL;
-	environ = env;
-	ft_init(env, &data);
-	termios(data);
 }

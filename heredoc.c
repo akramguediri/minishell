@@ -6,11 +6,46 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:46:16 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/22 18:16:21 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 12:10:29 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+void	redirect_heredoc(char *s)
+{
+	int		heredoc_pipe[2];
+	pid_t	cat_pid;
+
+	if (pipe(heredoc_pipe) == -1)
+		error_exit("pipe");
+	cat_pid = fork();
+	if (cat_pid == -1)
+		error_exit("fork");
+	else if (cat_pid == 0)
+	{
+		close(heredoc_pipe[0]);
+		if (write(heredoc_pipe[1], s, strlen(s)) == -1)
+			error_exit("write");
+		close(heredoc_pipe[1]);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		close(heredoc_pipe[1]);
+		dup2(heredoc_pipe[0], STDIN_FILENO);
+		close(heredoc_pipe[0]);
+		if (waitpid(cat_pid, NULL, 0) == -1)
+			error_exit("write pid");
+	}
+}
+
+void	process_heredoc(struct s_cmd_data *cmddata, char *input)
+{
+	cmddata->here = 2;
+	cmddata->heredoc = heredoc(input);
+	cmddata->here = 0;
+}
 
 void	*ft_realloc(void *ptr, size_t old_size, size_t new_size, char **new_ptr)
 {
@@ -66,58 +101,3 @@ char	*heredoc(const char *delimiter)
 	system("leaks minishell");
 	return (s[2]);
 }
-
-// char	*heredoc(const char *delimiter)
-// {
-// 	char	*buffer;
-// 	char	*line;
-// 	char	*temp;
-// 	size_t	required_size;
-// 	size_t	buffer_size;
-
-// 	buffer = NULL;
-// 	line = NULL;
-// 	buffer_size = 256;
-// 	buffer = (char *)ft_calloc(buffer_size, 1);
-// 	buffer[0] = '\0';
-// 	while (1)
-// 	{
-// 		line = readline("> ");
-// 		if (line == NULL)
-// 		{
-// 			perror("Error reading input");
-// 			free(buffer);
-// 			return (NULL);
-// 		}
-// 		if (ft_strncmp(line, delimiter, ft_strlen(delimiter)) == 0)
-// 		{
-// 			free(line);
-// 			break ;
-// 		}
-// 		required_size = ft_strlen(buffer) + ft_strlen(line)
-// 			+ ft_strlen(delimiter) + 1;
-// 		if (required_size > buffer_size)
-// 		{
-// 			buffer = ft_realloc(buffer, buffer_size, buffer_size * 2);
-// 			if (buffer == NULL)
-// 			{
-// 				perror("Memory allocation error");
-// 				free(line);
-// 				return (NULL);
-// 			}
-// 		}
-// 		temp = ft_strjoin(buffer, line);
-// 		temp = ft_strjoin(temp, "\n");
-// 		if (temp == NULL)
-// 		{
-// 			free(line);
-// 			return (NULL);
-// 		}
-// 		free(buffer);
-// 		buffer = temp;
-// 		free(line);
-// 	}
-// 	if (temp == NULL)
-// 		return (NULL);
-// 	return (temp);
-// }

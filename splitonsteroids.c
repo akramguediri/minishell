@@ -6,41 +6,13 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:58:41 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/22 12:55:10 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 12:12:08 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include <stdbool.h>
 #include <stdlib.h>
-
-static int	ft_wordcount(char const *s, char c)
-{
-	int		count;
-	int		i;
-	bool	inside_single_quotes;
-	bool	inside_double_quotes;
-
-	count = 0;
-	i = 0;
-	inside_single_quotes = false;
-	inside_double_quotes = false;
-	while (s[i])
-	{
-		if (s[i] == '\'')
-			inside_single_quotes = !inside_single_quotes;
-		else if (s[i] == '"')
-			inside_double_quotes = !inside_double_quotes;
-		if (((s[i] != c && s[i] != ' ' && s[i] != '\t') || inside_single_quotes
-				|| inside_double_quotes) && (i == 0 || (s[i - 1] == c || s[i
-						- 1] == ' ' || s[i - 1] == '\t')))
-		{
-			count++;
-		}
-		i++;
-	}
-	return (count);
-}
 
 int	ft_split_len(const char *s, int l, char c)
 {
@@ -63,7 +35,7 @@ int	ft_split_len(const char *s, int l, char c)
 	return (i);
 }
 
-static int	ft_split_start(const char *s, char c, int l)
+int	ft_split_start(const char *s, char c, int l)
 {
 	bool	inside_single_quotes;
 	bool	inside_double_quotes;

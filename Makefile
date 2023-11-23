@@ -8,7 +8,9 @@ LINKFLAGS = -lreadline -g -L$(shell brew --prefix readline)/lib
 # Source files
 SRC_DIR = libft
 SRCS = $(wildcard $(SRC_DIR)/*.c)
-SRCS += minishell.c termios.c history.c ft_piping.c heredoc.c splitonsteroids.c ft_execvp.c
+SRCS += main.c builtins.c counting.c echo.c env.c ft_execvp.c ft_piping.c \
+handle_path.c handling_cmd1.c handling_cmd2.c heredoc.c history.c io_files.c \
+minishell.c signals.c splitonsteroids.c termios.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)
