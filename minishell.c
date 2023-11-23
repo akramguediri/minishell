@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:06 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/21 18:18:55 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/21 20:20:00 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ const char	*ft_getactivepath(t_data *data, int j)
 		data->path = ft_strdup(s);
 	if (j == 1)
 		printf("%s\n", s);
-	return(s);
+	return (s);
 }
 
 void	ft_get(t_data *data)

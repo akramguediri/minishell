@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/21 19:13:12 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/22 18:16:57 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,10 +260,15 @@ void	print_echo_argument(char *argument, int z)
 {
 	char	*trimmed_argument;
 
+	if (ft_strlen(argument) == 1)
+	{
+		printf("%s", argument);
+		return ;
+	}
 	trimmed_argument = ft_strdup(ft_strtrim(argument, "\"'"));
 	if (!trimmed_argument)
 		return ;
-	if (ft_strnstr(trimmed_argument, "$?", 2))
+	else if (ft_strnstr(trimmed_argument, "$?", 2))
 		printf("%d", z);
 	else if (ft_strchr(trimmed_argument, '$') && (argument[0] != '\''
 			|| argument[1] == '\''))
@@ -299,8 +304,8 @@ void	echo(char *s, int z)
 	}
 	line = 1;
 	start = 1;
-	i = start;
 	handle_echo_options(tokens, &start);
+	i = start;
 	while (tokens[i] != NULL)
 	{
 		print_echo_argument(tokens[i], z);
@@ -372,7 +377,8 @@ int	handle_command(char *cmd, t_data *data, t_cmd_hist *h, int z)
 		result = 1;
 	else if (ft_strncmp(trimmed_cmd, "clear", 5) == 0)
 		result = handle_clear();
-	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0)
+	else if (ft_strncmp(trimmed_cmd, "env", 3) == 0 || ft_strncmp(trimmed_cmd,
+			"export", 6) == 0)
 		result = handle_env();
 	else if (ft_strncmp(trimmed_cmd, "history", 7) == 0)
 		result = handle_history(h);
@@ -413,17 +419,19 @@ void	my_export(char *arg)
 	char	*key;
 	char	*value;
 
-	printf("%s\n\n", arg);
-	if (ft_strncmp(arg, "export", 6) != 0)
+	if (!arg)
 		printenv();
-	key = strtok(arg, "=");
-	value = strtok(NULL, "=");
-	if (key != NULL && value != NULL)
+	else
 	{
-		if (setenv(key, value, 1) == 0)
-			printf("Exported: %s=%s\n", key, value);
-		else
-			perror("Export failed");
+		key = strtok(arg, "=");
+		value = strtok(NULL, "=");
+		if (key != NULL && value != NULL)
+		{
+			if (setenv(key, ft_strtrim(value, "\'\" "), 1) == 0)
+				printf("Exported: %s=%s\n", key, value);
+			else
+				perror("Export failed");
+		}
 	}
 }
 
@@ -445,7 +453,7 @@ void	process_command3(t_cmd_hist *command, t_data *data, t_cmd_hist *h,
 	}
 	if (ft_strnstr(command->history, "exit", 5) != 0)
 		exit(0);
-	else if (strnstr(command->history, "export", 6) != 0)
+	else if (strnstr(command->history, "export ", 7) != 0)
 		my_export(command->history + 7);
 	else if (strncmp(command->history, "unset ", 6) == 0)
 		my_unset(command->history + 6);
@@ -466,6 +474,18 @@ void	free_history_nodes(t_cmd_hist *h)
 	}
 }
 
+void	process_history(t_cmd_hist *command, int *i, t_cmd_hist **h)
+{
+	if (ft_strlen(command->history))
+	{
+		add_history(command->history);
+		command->history_index = ++(*i);
+		command->history_size = ft_strlen(command->history);
+		command->next = *h;
+		*h = command;
+	}
+}
+
 void	termios(t_data *data)
 {
 	struct termios	saved_attributes;
@@ -477,32 +497,68 @@ void	termios(t_data *data)
 	h = NULL;
 	i = 0;
 	z = 0;
-	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
-	if (!command)
-		return ;
+	command = (t_cmd_hist *)ft_calloc(sizeof(t_cmd_hist), 1);
 	setup_signals();
 	init_termios(&saved_attributes);
 	while (1)
 	{
 		command->history = read_command(data);
 		if (!command->history)
-		{
-			free(command);
 			break ;
-		}
-		if (ft_strlen(command->history))
-		{
-			add_history(command->history);
-			command->history_index = ++i;
-			command->history_size = ft_strlen(command->history);
-			command->next = h;
-			h = command;
-		}
+		process_history(command, &i, &h);
 		process_command3(command, data, h, z);
-		command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
-		if (!command)
-			break ;
+		command = (t_cmd_hist *)ft_calloc(sizeof(t_cmd_hist), 1);
 	}
 	restore_termios(&saved_attributes);
 	free_history_nodes(h);
+	free_history_nodes(command);
 }
+
+//----------------------------------------------------------------------------
+// void run_termios(t_data *data, t_cmd_hist **h, int *i, int *z)
+// {
+// 	t_cmd_hist		*command;
+
+// 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
+// 	if (!command)
+// 		return ;
+// 	command->history = read_command(data);
+// 	if (!command->history)
+// 	{
+// 		free(command);
+// 		return ;
+// 	}
+// 	if (ft_strlen(command->history))
+// 	{
+// 		add_history(command->history);
+// 		command->history_index = ++(*i);
+// 		command->history_size = ft_strlen(command->history);
+// 		command->next = *h;
+// 		*h = command;
+// 	}
+// 	process_command3(command, data, *h, *z);
+// 	command = (t_cmd_hist *)malloc(sizeof(t_cmd_hist));
+// 	if (!command)
+// 		return ;
+// }
+
+// void termios(t_data *data)
+// {
+// 	struct termios	saved_attributes;
+// 	t_cmd_hist		*h;
+// 	int				i;
+// 	int				z;
+
+// 	h = NULL;
+// 	i = 0;
+// 	z = 0;
+// 	setup_signals();
+// 	init_termios(&saved_attributes);
+// 	while (1)
+// 	{
+// 		run_termios(data, &h, &i, &z);
+// 	}
+// 	restore_termios(&saved_attributes);
+// 	free_history_nodes(h);
+// }
+//----------------------------------------------------

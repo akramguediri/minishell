@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   splitonsteroids.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aguediri <aguediri@student.42.fr>          +#+  +:+       +#+        */
+/*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:58:41 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/20 21:36:36 by aguediri         ###   ########.fr       */
+/*   Updated: 2023/11/22 12:55:10 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static int	ft_wordcount(char const *s, char c)
 	return (count);
 }
 
-static int	ft_split_len(const char *s, int l, char c)
+int	ft_split_len(const char *s, int l, char c)
 {
 	int		i;
 	bool	inside_single_quotes;
@@ -75,11 +75,35 @@ static int	ft_split_start(const char *s, char c, int l)
 	{
 		if (s[l] == '\'')
 			inside_single_quotes = !inside_single_quotes;
-		else if (s[l] == '"')
+		else if (s[l] == '\"')
 			inside_double_quotes = !inside_double_quotes;
 		l++;
 	}
 	return (l);
+}
+
+void	process_split_result(t_steroids *st, char *s, char c)
+{
+	st->l = ft_split_start(s, c, st->l);
+	if (ft_split_len(s, st->l, c) != 0)
+	{
+		st->result[st->j] = (char *)malloc((ft_split_len(s, st->l, c) + 1)
+				* sizeof(char));
+		if (!st->result[st->j])
+		{
+			free_split(st->result);
+			return ;
+		}
+		st->k = 0;
+		st->len = ft_split_len(s, st->l, c);
+		while (st->k < st->len)
+		{
+			st->result[st->j][st->k] = s[st->l + st->k];
+			st->k++;
+		}
+		st->result[st->j][st->len] = '\0';
+		st->j++;
+	}
 }
 
 char	**ft_splitonsteroids(char *s, char c)
@@ -101,29 +125,10 @@ char	**ft_splitonsteroids(char *s, char c)
 	}
 	if (st.s2)
 		s = ft_strjoin(s, st.s2);
-	st.result = (char **)malloc((ft_wordcount(s, c) + 1) * sizeof(char *));
-	if (!st.result)
-		return (NULL);
+	st.result = (char **)ft_calloc((ft_wordcount(s, c) + 1), sizeof(char *));
 	while (s[st.l])
 	{
-		st.l = ft_split_start(s, c, st.l);
-		if (ft_split_len(s, st.l, c) != 0)
-		{
-			st.result[st.j] = (char *)malloc((ft_split_len(s, st.l, c) + 1)
-					* sizeof(char));
-			if (!st.result[st.j])
-				return (free_split(st.result), NULL);
-			st.k = 0;
-			st.len = ft_split_len(s, st.l, c);
-			while (st.k < st.len)
-			{
-				st.result[st.j][st.k] = s[st.l + st.k];
-				st.k++;
-			}
-			st.result[st.j][st.len] = '\0';
-			//st.result[st.j] = ft_strtrim(st.result[st.j], "'\"");
-			st.j++;
-		}
+		process_split_result(&st, s, c);
 		st.l += ft_split_len(s, st.l, c);
 	}
 	st.result[st.j] = NULL;

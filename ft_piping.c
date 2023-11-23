@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/17 15:17:39 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/21 18:39:25 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/22 22:01:44 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ void	redirect_heredoc(char *s)
 	cat_pid = fork();
 	if (cat_pid == -1)
 		error_exit("fork");
-
 	else if (cat_pid == 0)
 	{
 		close(heredoc_pipe[0]);
@@ -106,7 +105,9 @@ int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h, int z)
 	char	*args[64];
 	int		arg_count;
 	char	*cmd2;
+	int		r;
 
+	r = z;
 	arg_count = 0;
 	if (cmd)
 		cmd2 = ft_strdup(cmd);
@@ -119,20 +120,20 @@ int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h, int z)
 	args[arg_count] = NULL;
 	if (handle_command(cmd2, data, h, z) == 0)
 	{
-		ft_execvp(args[0], args);
-		return(error_exit("Command not found\n"));
+		z = ft_execvp(args[0], args);
+		return (r);
 	}
 	return (EXIT_SUCCESS);
 }
 
-void	wait_for_children(int num_cmds, pid_t children[])
+void	wait_for_children(int num_cmds, pid_t children[], int z)
 {
 	int	i;
 
 	i = 0;
 	while (i < num_cmds)
 	{
-		waitpid(children[i], NULL, 0);
+		waitpid(children[i], &z, 0);
 		i++;
 	}
 }
@@ -181,7 +182,7 @@ void	pipes_io_redir(struct s_cmd_data cmddata, t_data *data, t_cmd_hist *h)
 				ft_execvp("echo", argv);
 			}
 			cmddata.z = execute_command2(cmddata.t[i], data, h, cmddata.z);
-			exit(0);
+			exit(EXIT_SUCCESS);
 		}
 		i++;
 	}
@@ -192,110 +193,36 @@ void	pipes_io_redir(struct s_cmd_data cmddata, t_data *data, t_cmd_hist *h)
 		close(pipe_fd[k][1]);
 		k++;
 	}
-	wait_for_children(cmddata.num_cmds, children);
+	wait_for_children(cmddata.num_cmds, children, cmddata.z);
 }
 
-// void	allocate_execution_data(t_execution_data *exec_data, int num_cmds)
-// {
-// 	int	i;
-
-// 	exec_data->pipe_fd = (int **)ft_calloc((num_cmds - 1), sizeof(int *));
-// 	i = 0;
-// 	while (i < num_cmds - 1)
-// 	{
-// 		exec_data->pipe_fd[i] = ft_calloc(2, sizeof(int));
-// 		i++;
-// 	}
-// 	exec_data->children = (pid_t *)ft_calloc(num_cmds, sizeof(pid_t));
-// 	exec_data->argv = (char **)ft_calloc(3, sizeof(char *));
-// }
-
-// void	free_execution_data(t_execution_data *exec_data, int num_cmds)
-// {
-// 	int	i;
-
-// 	for (i = 0; i < num_cmds - 1; i++)
-// 	{
-// 		free(exec_data->pipe_fd[i]);
-// 	}
-// 	free(exec_data->pipe_fd);
-// 	free(exec_data->children);
-// 	free(exec_data->argv);
-// }
-
-// void	pipes_io_redir(t_cmd_data cmddata, t_data *data, t_cmd_hist *h)
-// {
-// 	t_execution_data	exec_data;
-// 	int					i;
-
-// 	create_execution_data(&exec_data, cmddata.num_cmds);
-// 	create_pipes(cmddata.num_cmds - 1, exec_data.pipe_fd);
-// 	i = 0;
-// 	while (i < cmddata.num_cmds)
-// 	{
-// 		exec_data.children[i] = fork();
-// 		if (exec_data.children[i] < 0)
-// 		{
-// 			perror("Fork failed");
-// 			exit(EXIT_FAILURE);
-// 		}
-// 		if (exec_data.children[i] == 0)
-// 		{
-// 			redirect_input(i, cmddata.input_file, exec_data.pipe_fd);
-// 			redirect_output(i, cmddata, exec_data.pipe_fd);
-// 			close_pipes(cmddata.num_cmds - 1, exec_data.pipe_fd);
-// 			if (cmddata.heredoc)
-// 			{
-// 				exec_data.argv[0] = ft_strdup("echo");
-// 				exec_data.argv[1] = ft_strdup(cmddata.heredoc);
-// 				exec_data.argv[2] = NULL;
-// 				ft_execvp("echo", exec_data.argv);
-// 			}
-// 			execute_command2(cmddata.commandlist, data, h);
-// 		}
-// 		i++;
-// 	}
-// 	close_pipes(cmddata.num_cmds - 1, exec_data.pipe_fd);
-// 	wait_for_children(cmddata.num_cmds, exec_data.children);
-// 	destroy_execution_data(&exec_data, cmddata.num_cmds);
-// }
-
-char	*process_command(char *command)
+char	*process_command(char *command, char *input_file, char *output_file)
 {
 	int		len;
 	char	*processed;
-	char	*input_file;
-	char	*output_file;
-	int		i;
-	int		j;
+	int		i[2];
 
-	if (command == NULL)
-		return (NULL);
 	len = ft_strlen(command);
-	processed = (char *)malloc(len + 1);
-	input_file = NULL;
-	output_file = NULL;
-	i = 0;
-	j = 0;
-	while (i < len)
+	processed = (char *)ft_calloc(len + 1, 1);
+	i[0] = 0;
+	i[1] = 0;
+	while (i[0] < len)
 	{
-		if (command[i] == '<')
+		if (command[i[0]] == '<')
 		{
-			i++;
-			input_file = extract_input_file(command, &i, len);
+			i[0]++;
+			input_file = extract_input_file(command, &i[0], len);
 		}
-		else if (command[i] == '>')
+		else if (command[i[0]] == '>')
 		{
-			i++;
-			output_file = extract_output_file(command, &i, len);
+			i[0]++;
+			output_file = extract_output_file(command, &i[0], len);
 		}
 		else
-			processed[j++] = command[i++];
+			processed[i[1]++] = command[i[0]++];
 	}
-	processed[j] = '\0';
-	free(input_file);
-	free(output_file);
-	return (processed);
+	return (processed[i[1]] = '\0', free(input_file), free(output_file),
+		processed);
 }
 
 char	*extract_input_file(char *command, int *i, int len)
@@ -381,85 +308,118 @@ int	count_characters(const char *s, char c)
 	return (count);
 }
 
-void	initialize_s_cmd_data(struct s_cmd_data *cmddata, char *input_command2)
+void	initialize_s_cmd_data(struct s_cmd_data *cmddata, char *input2)
 {
 	cmddata->r = 0;
 	cmddata->here = 0;
-	if (input_command2)
-		cmddata->input_command = ft_split(input_command2, ' ');
+	if (input2)
+		cmddata->input = ft_split(input2, ' ');
 	else
-		cmddata->input_command = NULL;
+		cmddata->input = NULL;
 	cmddata->input_file = NULL;
 	cmddata->output_file = NULL;
 	cmddata->commandlist = NULL;
 	cmddata->heredoc = NULL;
-	cmddata->commandlist = ft_calloc(1 , 1);
+	cmddata->commandlist = ft_calloc(1, 1);
 	cmddata->commandlist[0] = '\0';
 }
 
-void	process_s_cmd_data(struct s_cmd_data *cmddata, char *input_command2)
+void	process_s_cmd_data(struct s_cmd_data *cmddata, char *input2)
 {
 	int	i;
 
 	i = 0;
-	initialize_s_cmd_data(cmddata, input_command2);
-	while (cmddata->input_command[i] && cmddata->input_command)
+	initialize_s_cmd_data(cmddata, input2);
+	while (cmddata->input[i] && cmddata->input)
 	{
-		if (ft_strnstr(cmddata->input_command[i], "<<", 2) != 0)
+		if (ft_strnstr(cmddata->input[i], "<<", 2) != 0)
 			cmddata->here = 2;
-		else if (ft_strncmp(cmddata->input_command[i], "<", 1) == 0)
-			cmddata->input_file = process_input_file(cmddata->input_command,
-					&i);
-		else if (ft_strncmp(cmddata->input_command[i], ">", 1) == 0
-			|| ft_strncmp(cmddata->input_command[i], ">>", 2) == 0)
-			cmddata->output_file = process_output_file(cmddata->input_command,
-					&i, &(cmddata->r));
+		else if (ft_strncmp(cmddata->input[i], "<", 1) == 0)
+			cmddata->input_file = process_input_file(cmddata->input, &i);
+		else if (ft_strncmp(cmddata->input[i], ">", 1) == 0
+			|| ft_strncmp(cmddata->input[i], ">>", 2) == 0)
+			cmddata->output_file = process_output_file(cmddata->input, &i,
+					&(cmddata->r));
 		else
 			cmddata->processed = process_regular_command(cmddata,
-					cmddata->input_command[i]);
-		if (cmddata->here == 2)
-		{
-			process_heredoc(cmddata, cmddata->input_command[i]);
-			cmddata->here = 0;
-		}
+					cmddata->input[i]);
+		if (cmddata->here == 2 && (!ft_strlen(ft_strtrim(cmddata->input[i],
+						"<"))))
+			process_heredoc(cmddata, cmddata->input[i + 1]);
+		else if (cmddata->here == 2)
+			process_heredoc(cmddata, ft_strtrim(cmddata->input[i], "<"));
 		i++;
 	}
 }
 
-char	*process_input_file(char **input_command, int *i)
+char	*process_input_file(char **input, int *i)
 {
 	char	*input_file;
 
 	input_file = NULL;
-	if (input_command[*i + 1])
+	if (input[*i + 1])
 	{
-		input_file = ft_strdup(input_command[*i + 1]);
+		input_file = ft_strdup(input[*i + 1]);
 		(*i)++;
 	}
 	return (input_file);
 }
 
-char	*process_output_file(char **input_command, int *i, int *r)
+char	*outputvar(char *s)
+{
+	int		i;
+	char	**t;
+
+	i = 0;
+	t = NULL;
+	while (environ[i])
+	{
+		if (ft_strnstr(environ[i], s, ft_strlen(s)))
+		{
+			t = ft_split(environ[i], '=');
+			return (t[1]);
+		}
+		i++;
+	}
+	if (!t)
+		perror("ambiguous redirect");
+	return ("");
+}
+
+char	*process_output_file(char **input, int *i, int *r)
 {
 	char	*output_file;
+	char	*var;
 
 	output_file = NULL;
-	if (ft_strncmp(input_command[*i], ">>", 2) == 0)
-	{
+	var = NULL;
+	if (ft_strncmp(input[*i], ">>", 2) == 0)
 		*r = 1;
-	}
-	if (input_command[*i + 1])
+	if (input[*i + 1])
 	{
-		output_file = ft_strdup(input_command[*i + 1]);
+		output_file = ft_strdup(input[*i + 1]);
 		(*i)++;
 	}
-	return (output_file);
+	if (ft_strchr(output_file, '$'))
+	{
+		var = ft_strdup(outputvar(ft_strtrim(output_file, "$")));
+		if (!var)
+			perror("ambiguous redirect");
+	}
+	if (var)
+		return (var);
+	else
+		return (output_file);
 }
 
 char	*process_regular_command(struct s_cmd_data *cmddata, char *command)
 {
-	cmddata->processed = process_command(command);
-	cmddata->processed = command;
+	char	*input_file;
+	char	*output_file;
+
+	input_file = NULL;
+	output_file = NULL;
+	cmddata->processed = process_command(command, input_file, output_file);
 	if (cmddata->processed)
 	{
 		cmddata->commandlist = ft_strjoin(cmddata->commandlist,
@@ -467,13 +427,14 @@ char	*process_regular_command(struct s_cmd_data *cmddata, char *command)
 		cmddata->commandlist = ft_strjoin(cmddata->commandlist, " ");
 		free(cmddata->processed);
 	}
-	return ((cmddata->processed));
+	return ((cmddata->commandlist));
 }
 
-void	process_heredoc(struct s_cmd_data *cmddata, char *input_command)
+void	process_heredoc(struct s_cmd_data *cmddata, char *input)
 {
 	cmddata->here = 2;
-	cmddata->heredoc = heredoc(ft_strtrim(input_command, "<"));
+	cmddata->heredoc = heredoc(input);
+	cmddata->here = 0;
 }
 
 int	countpipes(char **t, char c)
@@ -491,12 +452,12 @@ int	countpipes(char **t, char c)
 	return (j);
 }
 
-int	commandd(char *input_command2, t_data *data, t_cmd_hist *h, int z)
+int	commandd(char *input2, t_data *data, t_cmd_hist *h, int z)
 {
 	struct s_cmd_data	cmddata;
 
 	cmddata.z = z;
-	process_s_cmd_data(&cmddata, ft_strtrim(input_command2, "|"));
+	process_s_cmd_data(&cmddata, ft_strtrim(input2, "|"));
 	cmddata.t = ft_splitonsteroids(cmddata.commandlist, '|');
 	cmddata.num_cmds = count_characters(cmddata.commandlist, '|')
 		- countpipes(cmddata.t, '|') + 1;
