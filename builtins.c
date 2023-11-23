@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/23 09:30:09 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/23 12:08:29 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:59:04 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,25 @@ int	handle_pwd(t_data *data)
 	ft_getactivepath(data, 1);
 	printf("\n");
 	return (1);
+}
+
+char	*outputvar(char *s)
+{
+	int		i;
+	char	**t;
+
+	i = 0;
+	t = NULL;
+	while (environ[i])
+	{
+		if (ft_strnstr(environ[i], s, ft_strlen(s)))
+		{
+			t = ft_split(environ[i], '=');
+			return (t[1]);
+		}
+		i++;
+	}
+	if (!t)
+		perror("ambiguous redirect");
+	return ("");
 }

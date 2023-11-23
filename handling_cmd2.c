@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/23 09:55:27 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/23 12:10:10 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 16:59:22 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ int	execute_command2(char *cmd, t_data *data, t_cmd_hist *h, int z)
 	if (handle_command(cmd2, data, h, z) == 0)
 	{
 		z = ft_execvp(args[0], args);
+		if (!z)
+			ft_putendl_fd("command not found", 2);
 		return (r);
 	}
 	return (EXIT_SUCCESS);

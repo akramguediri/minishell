@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 14:46:16 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/23 12:10:29 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:50:57 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,4 +100,15 @@ char	*heredoc(const char *delimiter)
 	}
 	system("leaks minishell");
 	return (s[2]);
+}
+
+void	executehere(char *s)
+{
+	char	**argv;
+
+	argv = (char **)ft_calloc(3, sizeof(char *));
+	argv[0] = ft_strdup("echo");
+	argv[1] = ft_strdup(s);
+	argv[2] = NULL;
+	ft_execvp("echo", argv);
 }

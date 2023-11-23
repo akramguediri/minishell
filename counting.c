@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/23 11:28:54 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/23 12:08:42 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 16:02:08 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,30 @@ int	countpipes(char **t, char c)
 		i++;
 	}
 	return (j);
+}
+
+char	*process_output_file(char **input, int *i, int *r)
+{
+	char	*output_file;
+	char	*var;
+
+	output_file = NULL;
+	var = NULL;
+	if (ft_strncmp(input[*i], ">>", 2) == 0)
+		*r = 1;
+	if (input[*i + 1])
+	{
+		output_file = ft_strdup(input[*i + 1]);
+		(*i)++;
+	}
+	if (ft_strchr(output_file, '$'))
+	{
+		var = ft_strdup(outputvar(ft_strtrim(output_file, "$")));
+		if (!var)
+			perror("ambiguous redirect");
+	}
+	if (var)
+		return (var);
+	else
+		return (output_file);
 }

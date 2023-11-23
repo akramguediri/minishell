@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/29 16:52:10 by aguediri          #+#    #+#             */
-/*   Updated: 2023/11/23 12:49:00 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 15:54:02 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ typedef struct s_cmd_data
 	int						here;
 	char					*heredoc;
 	int						z;
+	int						k;
 }							t_cmd_data;
 
 typedef struct s_steroids
@@ -166,6 +167,7 @@ void						*ft_realloc(void *ptr, size_t old_size,
 void						process_heredoc(struct s_cmd_data *cmddata,
 								char *input);
 void						redirect_heredoc(char *s);
+void						executehere(char *s);
 
 //============================handling_cmd2.c.c==============================
 char						*process_regular_command(struct s_cmd_data *cmddata,
@@ -204,6 +206,7 @@ char						*extract_regular_chars(char *command, int *i,
 void						pipes_io_redir(struct s_cmd_data cmddata,
 								t_data *data, t_cmd_hist *h);
 void						create_pipes(int num_pipes, int **pipe_fd);
+void						close_pipes(int num_cmds, int **pipe_fd);
 
 //===============================ft_execvp.c===================================
 void						free_resources(char *path_copy, char *full_path);

@@ -6,7 +6,7 @@
 /*   By: otuyishi <otuyishi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/03 12:47:52 by otuyishi          #+#    #+#             */
-/*   Updated: 2023/11/23 12:19:13 by otuyishi         ###   ########.fr       */
+/*   Updated: 2023/11/23 16:56:42 by otuyishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,14 @@ void	exec(char *s, t_data *data, t_cmd_hist *h, int z)
 	char	**t;
 	int		i;
 
+	if (ft_strlen(s))
+	{
+		if ((!ft_strlen(ft_strtrim(s, "<>|*-+!@#$%%^&*()_"))))
+		{
+			ft_putendl_fd("invalid syntax", 2);
+			return ;
+		}
+	}
 	t = ft_split(s, '&');
 	i = 0;
 	while (t[i])
